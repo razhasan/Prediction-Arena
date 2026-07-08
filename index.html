@@ -169,18 +169,9 @@
   .play-wrap{ width:100%; max-width:420px; background:linear-gradient(160deg,#0b0f1c,#0e1428); border:1px solid var(--border-lit); border-radius:16px; padding:16px; box-shadow:0 30px 80px rgba(0,0,0,0.6); position:relative; max-height:96vh; overflow-y:auto; }
   .play-close{ position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:var(--panel3); border:1px solid var(--border-lit); color:var(--muted); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:5; }
   .play-close:hover{ color:var(--danger); border-color:var(--danger); }
-
-  /* ───── WELCOME / BRIEFING MODAL ───── */
-  .welcome-wrap{ max-width:480px; }
-  .welcome-title{ font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:2px; color:var(--gold-light); text-align:center; margin:6px 0 14px; }
-  .welcome-text{ font-size:13.5px; line-height:1.6; color:var(--text); margin:0 0 12px; }
-  .welcome-text strong{ color:var(--gold-light); }
-  .welcome-list{ margin:0 0 14px; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:9px; }
-  .welcome-list li{ font-size:13px; line-height:1.5; color:var(--text); padding-left:24px; position:relative; }
-  .welcome-list li::before{ content:'⚽'; position:absolute; left:0; top:1px; font-size:12px; }
-  .welcome-list b{ color:var(--gold-light); }
-  .welcome-ok-btn{ display:block; width:100%; margin-top:4px; background:linear-gradient(135deg,var(--gold),#b8901f); border:none; color:#0A0E18; font-family:'Rajdhani',sans-serif; font-weight:800; font-size:15px; letter-spacing:1px; text-transform:uppercase; padding:13px; border-radius:9px; cursor:pointer; transition:filter .15s; }
-  .welcome-ok-btn:hover{ filter:brightness(1.1); }
+  .play-help{ position:absolute; top:10px; left:10px; width:28px; height:28px; border-radius:50%; background:var(--panel3); border:1px solid var(--border-lit); color:var(--gold-light); font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:5; font-family:'Rajdhani',sans-serif; }
+  .play-help:hover{ color:var(--gold); border-color:var(--gold); box-shadow:0 0 10px var(--gold-glow); }
+  .pinch-badge{ position:absolute; top:8px; right:8px; background:rgba(10,14,24,0.7); border:1px solid var(--border-lit); color:var(--gold-light); font-size:9px; letter-spacing:.5px; padding:3px 7px; border-radius:12px; pointer-events:none; opacity:.85; }
   .play-header{ display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:8px; padding-right:26px; }
   .play-header .ph-team{ display:flex; align-items:center; gap:6px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; }
   .play-header .ph-team img{ width:22px; height:16px; object-fit:cover; border-radius:2px; }
@@ -220,6 +211,10 @@
   .dpad button:active{ background:var(--gold); color:#0A0E18; }
   .dpad .d-up{grid-column:2;grid-row:1;} .dpad .d-left{grid-column:1;grid-row:2;} .dpad .d-right{grid-column:3;grid-row:2;} .dpad .d-down{grid-column:2;grid-row:3;}
   .action-btns{ display:flex; flex-direction:column; gap:6px; }
+  html.touch-device .dpad{ grid-template-columns:repeat(3,46px); grid-template-rows:repeat(3,46px); gap:5px; }
+  html.touch-device .dpad button{ font-size:18px; }
+  html.touch-device .action-btns button{ padding:14px 18px; font-size:14px; }
+  html.touch-device .pen-aim button{ padding:16px 0; font-size:23px; }
   .action-btns button{ font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12px; letter-spacing:.5px; border-radius:7px; padding:9px 16px; cursor:pointer; border:1px solid var(--border-lit); touch-action:none; }
   .btn-pass{ background:var(--panel3); color:var(--gold-light); }
   .btn-pass:active{ background:var(--gold); color:#0A0E18; }
@@ -236,6 +231,19 @@
   .pen-aim{ display:flex; gap:8px; justify-content:center; margin-top:10px; }
   .pen-aim button{ flex:1; max-width:90px; background:var(--panel3); border:1px solid var(--border-lit); color:var(--text); border-radius:7px; padding:12px 0; font-size:20px; cursor:pointer; }
   .pen-aim button:hover{ background:var(--gold); color:#0A0E18; }
+
+  /* ───── HOW-TO-PLAY GUIDE ───── */
+  .help-overlay{ position:fixed; inset:0; z-index:10001; background:rgba(4,6,11,0.92); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; padding:16px; }
+  .help-overlay.show{ display:flex; }
+  .help-wrap{ width:100%; max-width:400px; max-height:88vh; overflow-y:auto; background:linear-gradient(160deg,#0b0f1c,#0e1428); border:1px solid var(--border-lit); border-radius:16px; padding:22px 20px 18px; position:relative; box-shadow:0 30px 80px rgba(0,0,0,0.6); }
+  .help-wrap h3{ font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1.5px; color:var(--gold-light); margin-bottom:14px; text-align:center; }
+  .help-section{ margin-bottom:16px; }
+  .help-section h4{ font-size:12.5px; letter-spacing:.5px; color:var(--text); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .help-section ul{ list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .help-section li{ font-size:12px; color:var(--muted); line-height:1.5; padding-left:14px; position:relative; }
+  .help-section li::before{ content:'•'; position:absolute; left:0; color:var(--gold); }
+  .help-section li b{ color:var(--text); }
+  .help-foot{ font-size:11px; color:var(--muted-dim); text-align:center; margin-top:2px; }
 
   /* ───── PLAY MINI-GAME: team select / toss / defend extras ───── */
   .pg-team-select{ border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:12px 0; }
@@ -342,22 +350,6 @@
 <canvas id="confettiCanvas"></canvas>
 <div id="toastHost"></div>
 
-<div class="play-overlay show" id="welcomeOverlay" style="z-index:10001;">
-  <div class="play-wrap welcome-wrap">
-    <div class="welcome-title">🏆 2026 PREDICTOR</div>
-    <p class="welcome-text">The Round of 16 is complete! <strong>Argentina</strong> beat <strong>Egypt</strong> 3–2 with a stoppage-time winner, and <strong>Switzerland</strong> edged <strong>Colombia</strong> 4–3 on penalties after a goalless draw. <strong>Morocco, France, Spain, Belgium, Norway</strong> and <strong>England</strong> also advanced.</p>
-    <p class="welcome-text">Now you can predict the Quarterfinals, Semifinals, and Final in several ways:</p>
-    <ul class="welcome-list">
-      <li><b>Manually</b> — Click on any team to pick your winner.</li>
-      <li><b>AI Prediction</b> — Click the 🔮 button on any match to let the AI analyze team strength and form, then make a smart prediction.</li>
-      <li><b>Simulate to the Champion</b> — Click the ⚡ "Simulate to Final" button to run the entire tournament instantly, with AI predicting every remaining match.</li>
-      <li><b>Play the Match</b> — Click the ▶ "Play" button to control a team in an interactive mini-game and decide the winner yourself.</li>
-    </ul>
-    <p class="welcome-text">You can combine these methods however you like — predict some matches manually, simulate others, or play them out interactively. The bracket updates automatically as you go.</p>
-    <button class="welcome-ok-btn" type="button" onclick="closeWelcome()">OK — Let's Go</button>
-  </div>
-</div>
-
 <header>
   <div class="floodlight fl1"></div>
   <div class="floodlight fl2"></div>
@@ -368,8 +360,8 @@
       <p>USA · Canada · Mexico &nbsp;·&nbsp; Prediction Arena</p>
     </div>
     <div class="header-badges">
-      <div class="header-badge live"><span class="live-dot"></span>QUARTERFINALS BEGIN JUL 9</div>
-      <div class="header-badge">8 TEAMS REMAIN</div>
+      <div class="header-badge live"><span class="live-dot"></span>2 R16 MATCHES LIVE — JUL 7</div>
+      <div class="header-badge">10 TEAMS REMAIN</div>
     </div>
   </div>
 </header>
@@ -409,9 +401,9 @@
 
 <div class="round-nav">
   <div class="round-nav-inner" id="roundNav">
-    <div class="round-tab" data-round="r32" onclick="showRound('r32')">Round of 32 <span class="badge">16/16</span></div>
-    <div class="round-tab" data-round="r16" onclick="showRound('r16')">Round of 16 <span class="badge">8/8</span></div>
-    <div class="round-tab active" data-round="qf" onclick="showRound('qf')">Quarterfinals <span class="badge num" id="tab-badge-qf">0/4</span></div>
+    <div class="round-tab active" data-round="r32" onclick="showRound('r32')">Round of 32 <span class="badge">16/16</span></div>
+    <div class="round-tab" data-round="r16" onclick="showRound('r16')">Round of 16 <span class="badge num" id="tab-badge-r16">0/2</span></div>
+    <div class="round-tab" data-round="qf" onclick="showRound('qf')">Quarterfinals <span class="badge num" id="tab-badge-qf">0/4</span></div>
     <div class="round-tab" data-round="sf" onclick="showRound('sf')">Semifinals <span class="badge num" id="tab-badge-sf">0/2</span></div>
     <div class="round-tab" data-round="final" onclick="showRound('final')">Final <span class="badge num" id="tab-badge-final">0/1</span></div>
     <div class="round-tab" data-round="winner" onclick="showRound('winner')">🏆 Champion</div>
@@ -419,21 +411,29 @@
 </div>
 
 <main>
-  <div class="round-section" id="section-r32">
+  <div class="round-section active" id="section-r32">
     <div class="round-header"><h2>Round of 32</h2><div class="line"></div><div class="count">Completed · Jun 28 – Jul 3</div></div>
     <div class="section-note">✅ All 16 Round of 32 matches are complete. Winners are marked with a <strong>⭐ gold star</strong>. Paraguay, Morocco and Egypt all advanced on penalties after draws.</div>
     <div class="match-grid" id="grid-r32"></div>
   </div>
 
   <div class="round-section" id="section-r16">
-    <div class="round-header"><h2>Round of 16</h2><div class="line"></div><div class="count">Completed · Jul 4 – Jul 7</div></div>
-    <div class="section-note">✅ All 8 Round of 16 matches are complete. <strong>Argentina</strong> came back from 2–0 down to beat <strong>Egypt</strong> 3–2, and <strong>Switzerland</strong> edged <strong>Colombia</strong> 4–3 on penalties after a goalless draw to complete the Quarterfinal bracket.</div>
+    <div class="round-header"><h2>Round of 16</h2><div class="line"></div><div class="count">Jul 4 – Jul 7</div></div>
+    <div class="section-note">6 of 8 Round of 16 matches are complete (⭐ starred below). The last two — <strong>Argentina vs. Egypt</strong> and <strong>Switzerland vs. Colombia</strong> — are live on July 7 and decide the final Quarterfinal slot.</div>
+    <div class="prob-legend">
+      <strong>Win probability:</strong>
+      <span><div class="dot high"></div>60%+ Likely</span>
+      <span><div class="dot mid"></div>40–59% Even</span>
+      <span><div class="dot low"></div>&lt;40% Underdog</span>
+      <em>Tap 🔮 to see the reasoning</em>
+    </div>
+    <div class="advance-banner" id="banner-r16"><span>✅ Both remaining Round of 16 picks made!</span><button onclick="showRound('qf')">Go to Quarterfinals →</button></div>
     <div class="match-grid" id="grid-r16"></div>
   </div>
 
-  <div class="round-section active" id="section-qf">
+  <div class="round-section" id="section-qf">
     <div class="round-header"><h2>Quarterfinals</h2><div class="line"></div><div class="count">Jul 9 – Jul 11</div></div>
-    <div class="section-note">The Quarterfinal bracket is set: <strong>France vs. Morocco</strong>, <strong>Norway vs. England</strong>, <strong>Spain vs. Belgium</strong>, and <strong>Argentina vs. Switzerland</strong>.</div>
+    <div class="section-note">Three quarterfinal pairings are already set: <strong>France vs. Morocco</strong>, <strong>Norway vs. England</strong>, and <strong>Spain vs. Belgium</strong>. The fourth slot fills in once the last two Round of 16 matches finish.</div>
     <div class="prob-legend">
       <strong>Win probability:</strong>
       <span><div class="dot high"></div>60%+ Likely</span>
@@ -490,8 +490,41 @@
 <!-- ───── PLAY MINI-GAME OVERLAY ───── -->
 <div class="play-overlay" id="playOverlay">
   <div class="play-wrap" id="playWrap">
+    <button class="play-help" id="playHelpBtn" onclick="showPlayHelp()" type="button" title="How to play">?</button>
     <button class="play-close" onclick="closePlayOverlay()">✕</button>
     <div id="playContent"></div>
+  </div>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-wrap">
+    <button class="play-close" onclick="closeHelp()" type="button">✕</button>
+    <h3>⚽ How To Play</h3>
+    <div class="help-section">
+      <h4>⚔️ Attacking (you have the ball)</h4>
+      <ul>
+        <li><b>Keyboard:</b> Arrow keys to move · A to pass · S to shoot</li>
+        <li><b>Mouse / Tap on D-pad:</b> Click the on-screen D-pad to move · click Pass or Shoot</li>
+        <li><b>Mouse cursor:</b> Move your cursor over the pitch — your player follows it · one click = pass · two quick clicks = shoot</li>
+        <li><b>Touch gesture:</b> Pinch once on the pitch to pass · pinch twice quickly in a row to shoot</li>
+      </ul>
+    </div>
+    <div class="help-section">
+      <h4>🛡 Defending</h4>
+      <ul>
+        <li><b>Keyboard:</b> Arrow keys to move · S to tackle</li>
+        <li><b>Mouse / Tap on D-pad:</b> Click the on-screen D-pad to move · click Tackle</li>
+        <li><b>Mouse cursor:</b> Move your cursor over the pitch — your defender follows it · click to attempt a tackle</li>
+        <li><b>Touch gesture:</b> Pinch on the pitch to attempt a tackle</li>
+      </ul>
+    </div>
+    <div class="help-section" style="margin-bottom:6px;">
+      <h4>🥅 Penalties</h4>
+      <ul>
+        <li>Click or tap left, center, or right to aim your shot — or to dive for a save</li>
+      </ul>
+    </div>
+    <div class="help-foot">Use whichever suits your device — keyboard, mouse, and touch all play the same game.</div>
   </div>
 </div>
 
@@ -643,7 +676,7 @@ const R32_RESULTS = [
   {date:'Jul 3',  t1:'COL', s1:1, t2:'GHA', s2:0},
 ];
 
-// ─── REAL RESULTS: ROUND OF 16 (all 8 complete) ──────────────────────────────
+// ─── REAL RESULTS: ROUND OF 16 — 6 of 8 complete, 2 live today (Jul 7) ───────
 const R16_RESULTS = [
   {date:'Jul 4', t1:'MAR', s1:3, t2:'CAN', s2:0, next:'Quarterfinal vs. France'},
   {date:'Jul 4', t1:'FRA', s1:1, t2:'PAR', s2:0, next:'Quarterfinal vs. Morocco'},
@@ -651,35 +684,35 @@ const R16_RESULTS = [
   {date:'Jul 5', t1:'ENG', s1:3, t2:'MEX', s2:2, next:'Quarterfinal vs. Norway'},
   {date:'Jul 6', t1:'ESP', s1:1, t2:'POR', s2:0, next:'Quarterfinal vs. Belgium'},
   {date:'Jul 6', t1:'BEL', s1:4, t2:'USA', s2:1, next:'Quarterfinal vs. Spain'},
-  {date:'Jul 7', t1:'ARG', s1:3, t2:'EGY', s2:2, next:'Quarterfinal vs. Switzerland'},
-  {date:'Jul 7', t1:'SUI', s1:0, t2:'COL', s2:0, pen:'4–3 pen', penWinner:'SUI', next:'Quarterfinal vs. Argentina'},
+];
+const R16_LIVE = [
+  {id:'r16-01', label:'Argentina vs. Egypt',    date:'Jul 7 · Atlanta',  t1:'ARG', t2:'EGY'},
+  {id:'r16-02', label:'Switzerland vs. Colombia', date:'Jul 7 · Vancouver', t1:'SUI', t2:'COL'},
 ];
 
 // ─── OFFICIAL RESULTS DB (checked by the "Check Live Results" button) ───────
-// Populated from real, confirmed final scores as later rounds are played.
-// Add an entry here the moment a match finishes (e.g. 'qf-01': {winner:'FRA',
-// loser:'MAR', wG:2, lG:1, pen:''}) and "Check Live Results" will lock it in
-// automatically — anything with no entry yet is left for the user to decide
-// manually, via 🔮 Predict, or by playing it out with ▶ Play.
-const LIVE_RESULTS_DB = {};
+// Populated from real, confirmed final scores. Add an entry here the moment a
+// match finishes and "Check Live Results" will lock it in automatically —
+// anything with no entry yet is left for the user to decide manually,
+// via 🔮 Predict, or by playing it out with ▶ Play.
+const LIVE_RESULTS_DB = {
+  'r16-01': { winner:'ARG', loser:'EGY', wG:3, lG:2, pen:'' },              // FT, Atlanta
+  'r16-02': { winner:'SUI', loser:'COL', wG:0, lG:0, pen:'4–3 pens' },      // 0-0 AET, Vancouver
+};
 
-// ─── QUARTERFINALS: bracket is fully set now that Round of 16 is complete ───
+// ─── QUARTERFINALS: 3 fixed pairings + 1 pending on today's Round of 16 ──────
 const QF_FIXED = [
-  {id:'qf-01', label:'Match 1', date:'Jul 9 · Boston',       t1:'FRA', t2:'MAR'},
-  {id:'qf-02', label:'Match 2', date:'Jul 11 · Miami',       t1:'NOR', t2:'ENG'},
-  {id:'qf-03', label:'Match 3', date:'Jul 10 · Inglewood',   t1:'ESP', t2:'BEL'},
-  {id:'qf-04', label:'Match 4', date:'Jul 11 · Kansas City', t1:'ARG', t2:'SUI'},
+  {id:'qf-01', label:'Match 1', date:'Jul 9 · Boston',      t1:'FRA', t2:'MAR'},
+  {id:'qf-02', label:'Match 2', date:'Jul 11 · Miami',      t1:'NOR', t2:'ENG'},
+  {id:'qf-03', label:'Match 3', date:'Jul 10 · Inglewood',  t1:'ESP', t2:'BEL'},
 ];
-// Real bracket routing: SF1 = QF1 winner x QF3 winner, SF2 = QF2 winner x QF4 winner
-const QF_TO_SF = { 'qf-01':'sf-01', 'qf-02':'sf-02', 'qf-03':'sf-01', 'qf-04':'sf-02' };
-const SF_PAIRS = { 'sf-01':['qf-01','qf-03'], 'sf-02':['qf-02','qf-04'] };
 
 const picks = {};       // matchId -> winning code
 const pickMeta = {};    // matchId -> { round, prob, t1, t2, winner }
 let upsetCount = 0;
 
 function getIds(round) {
-  if (round==='r16') return []; // Round of 16 is now fully decided/static — nothing to pick
+  if (round==='r16') return R16_LIVE.map(m=>m.id);
   const c={qf:4, sf:2, final:1};
   return Array.from({length:c[round]},(_,i)=>`${round}-${String(i+1).padStart(2,'0')}`);
 }
@@ -689,20 +722,21 @@ const ROUND_NAMES = {r16:'Round of 16', qf:'Quarterfinal', sf:'Semifinal', final
 
 // Resolve the two teams for any interactive match, from real fixed data or prior picks.
 function getMatchTeams(matchId, round) {
+  if (round === 'r16') {
+    const m = R16_LIVE.find(x=>x.id===matchId);
+    return m ? {t1:m.t1, t2:m.t2} : {t1:null, t2:null};
+  }
   if (round === 'qf') {
     const fixed = QF_FIXED.find(x=>x.id===matchId);
-    return fixed ? {t1:fixed.t1, t2:fixed.t2} : {t1:null, t2:null};
-  }
-  if (round === 'sf') {
-    const pair = SF_PAIRS[matchId];
-    return pair ? {t1:picks[pair[0]]||null, t2:picks[pair[1]]||null} : {t1:null, t2:null};
+    if (fixed) return {t1:fixed.t1, t2:fixed.t2};
+    return {t1:picks['r16-01']||null, t2:picks['r16-02']||null}; // qf-04
   }
   const pids = getIds(prevRound(round));
   const idx = getIds(round).indexOf(matchId);
   return {t1:picks[pids[idx*2]]||null, t2:picks[pids[idx*2+1]]||null};
 }
 
-// ─── BUILD: STATIC RESULT CARDS (Round of 32 + Round of 16) ─────────────────
+// ─── BUILD: STATIC RESULT CARDS (Round of 32 + decided Round of 16) ─────────
 function buildR32() {
   const g=document.getElementById('grid-r32'); g.innerHTML='';
   R32_RESULTS.forEach(m=>g.appendChild(makeResultCard(m)));
@@ -733,12 +767,15 @@ function makeResultCard(m) {
 function buildR16() {
   const g=document.getElementById('grid-r16'); g.innerHTML='';
   R16_RESULTS.forEach(m=>g.appendChild(makeResultCard(m)));
+  R16_LIVE.forEach(m=>g.appendChild(makeCard(m.id, m.label, m.date, m.t1, m.t2, 'r16', true)));
 }
 
 function buildLater() {
-  // Quarterfinals: all 4 pairings are fixed now that Round of 16 is complete
+  // Quarterfinals: 3 fixed + 1 dynamic
   const gq=document.getElementById('grid-qf'); gq.innerHTML='';
   QF_FIXED.forEach(m=>gq.appendChild(makeCard(m.id, m.label, m.date, m.t1, m.t2, 'qf')));
+  const qf4 = getMatchTeams('qf-04','qf');
+  gq.appendChild(makeCard('qf-04', 'Match 4', '', qf4.t1, qf4.t2, 'qf'));
 
   ['sf','final'].forEach(round=>{
     const g=document.getElementById('grid-'+round); g.innerHTML='';
@@ -852,8 +889,8 @@ function pick(matchId,code,round,opts) {
   if (!nr) { if (round==='final') revealWinner(code); updateProgress(); checkBanners(); return; }
 
   let nextId;
-  if (round==='qf') {
-    nextId = QF_TO_SF[matchId];
+  if (round==='r16') {
+    nextId='qf-04';
   } else {
     const allIds=getIds(round), idx=allIds.indexOf(matchId);
     const nextIdx=Math.floor(idx/2);
@@ -863,7 +900,7 @@ function pick(matchId,code,round,opts) {
   if (picks[nextId] && picks[nextId]!==nt1 && picks[nextId]!==nt2) cascadeClear(nextId,nr);
   const g=document.getElementById('grid-'+nr);
   const existing=document.getElementById('card-'+nextId);
-  const label = `Match ${parseInt(nextId.split('-')[1],10)}`;
+  const label = nextId===('qf-04') ? 'Match 4' : `Match ${parseInt(nextId.split('-')[1],10)}`;
   const nc=makeCard(nextId,label,'',nt1,nt2,nr);
   if (existing) existing.replaceWith(nc); else g.appendChild(nc);
 
@@ -880,13 +917,20 @@ function cascadeClear(matchId,round) {
   delete picks[matchId]; delete pickMeta[matchId];
   const nr=nextRound(round); if(!nr) return;
   let nextId;
-  if (round==='qf') nextId = QF_TO_SF[matchId];
+  if (round==='r16') nextId='qf-04';
   else { const allIds=getIds(round), idx=allIds.indexOf(matchId); nextId=`${nr}-${String(Math.floor(idx/2)+1).padStart(2,'0')}`; }
   if (picks[nextId]) cascadeClear(nextId,nr);
 }
 
 // ─── PLAY MINI-GAME (interactive match resolution) ───────────────────────────
 let PG = null;            // active play-game state
+// ─── Touch-device detection (bigger tap targets + enables pinch gestures) ───
+const IS_TOUCH_DEVICE = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+if (IS_TOUCH_DEVICE) document.documentElement.classList.add('touch-device');
+
+function showPlayHelp() { document.getElementById('helpOverlay').classList.add('show'); }
+function closeHelp() { document.getElementById('helpOverlay').classList.remove('show'); }
+
 const pgKeys = {};        // currently-held movement keys
 let pgKeyBound = false;
 
@@ -907,6 +951,8 @@ function playMatch(matchId, round) {
 function closePlayOverlay() {
   document.getElementById('playOverlay').classList.remove('show');
   pgStopTick();
+  pgResetPinch();
+  pgResetMouse();
   if (PG && PG.phase && PG.phase.saveTimer) clearInterval(PG.phase.saveTimer);
   PG = null;
 }
@@ -1069,6 +1115,46 @@ function wireDpad(idMap) {
   });
 }
 
+// ─── Mouse cursor control — an alternative to keyboard/D-pad/pinch.
+// The controlled player steers toward the cursor's position on the pitch.
+// One click = pass (defend: tackle); two quick clicks = shoot.
+const pgMouse = { active:false, x:null, y:null, clickCount:0, clickTimer:null };
+function pgMouseMoveHandler(e) {
+  if (e.pointerType === 'touch') return; // touch already has its own gestures
+  const pitch = e.currentTarget;
+  const rect = pitch.getBoundingClientRect();
+  pgMouse.active = true;
+  pgMouse.x = Math.max(0, Math.min(100, ((e.clientX-rect.left)/rect.width)*100));
+  pgMouse.y = Math.max(0, Math.min(100, ((e.clientY-rect.top)/rect.height)*100));
+}
+function pgMouseLeaveHandler() { pgMouse.active = false; }
+function pgMouseClickHandler(e) {
+  if (e.pointerType === 'touch') return;
+  if (!PG || !PG.phase || PG.phase.resolved) return;
+  if (PG.phase.mode === 'defend') { pgAttemptTackle(); return; }
+  pgMouse.clickCount++;
+  if (pgMouse.clickCount === 1) {
+    pgMouse.clickTimer = setTimeout(()=>{
+      pgMouse.clickCount = 0;
+      if (PG && PG.phase && !PG.phase.resolved && PG.phase.mode==='attack') pgDoPass();
+    }, 350);
+  } else {
+    clearTimeout(pgMouse.clickTimer);
+    pgMouse.clickCount = 0;
+    pgDoShoot();
+  }
+}
+function pgResetMouse() {
+  pgMouse.active = false; pgMouse.x = null; pgMouse.y = null; pgMouse.clickCount = 0;
+  if (pgMouse.clickTimer) { clearTimeout(pgMouse.clickTimer); pgMouse.clickTimer = null; }
+}
+function pgAttachMouse(el) {
+  if (!el) return;
+  el.addEventListener('pointermove', pgMouseMoveHandler);
+  el.addEventListener('pointerleave', pgMouseLeaveHandler);
+  el.addEventListener('click', pgMouseClickHandler);
+}
+
 // ─── ATTACK phase — user's team has the ball (2 attackers vs 1 defender + keeper) ─
 function runAttackPhase(attackerCode, defenderCode) {
   const params = computeDifficulty(attackerCode, defenderCode);
@@ -1078,6 +1164,8 @@ function runAttackPhase(attackerCode, defenderCode) {
     ballWith:'player', possessionChangeTime:Date.now(), timeLeft:9000, resolved:false,
   };
   pgKeys['ArrowUp']=pgKeys['ArrowDown']=pgKeys['ArrowLeft']=pgKeys['ArrowRight']=false;
+  pgResetPinch();
+  pgResetMouse();
   renderAttackShell();
   pgStartTick(pgAttackTick);
 }
@@ -1090,6 +1178,7 @@ function renderAttackShell() {
     ${pgChancesHTML()}
     <div class="play-timerbar"><i id="pgTimerBar"></i></div>
     <div class="pitch" id="pgPitch">
+      <div class="pinch-badge">🖱️/🤏 1×: pass · 2×: shoot</div>
       <div class="goal-box"></div>
       <div class="goal-net"></div>
       <div class="p-ent attacker" id="pgAi"></div>
@@ -1111,15 +1200,55 @@ function renderAttackShell() {
         <button class="btn-shoot" id="pgShootBtn" type="button">⚽ Shoot</button>
       </div>
     </div>
-    <div class="play-hint">Arrows/D-pad to move · A to pass · S to shoot — result is instant, based on your position</div>`;
+    <div class="play-hint">Move: arrows/D-pad/cursor · Pass: A / tap Pass / pinch once / click once · Shoot: S / tap Shoot / pinch twice / click twice · <span style="text-decoration:underline;cursor:pointer;" onclick="showPlayHelp()">full guide</span></div>`;
   wireDpad();
   const passBtn = document.getElementById('pgPassBtn'); if (passBtn) passBtn.addEventListener('click', pgDoPass);
   const shootBtn = document.getElementById('pgShootBtn'); if (shootBtn) shootBtn.addEventListener('click', pgDoShoot);
+  pgAttachPinch(document.getElementById('pgPitch'));
+  pgAttachMouse(document.getElementById('pgPitch'));
   pgUpdatePositions();
 }
 
 function pgStartTick(fn) { pgStopTick(); PG.tickTimer = setInterval(fn, 100); }
 function pgStopTick() { if (PG && PG.tickTimer) { clearInterval(PG.tickTimer); PG.tickTimer=null; } }
+
+// ─── Pinch gestures — an alternative to buttons/keyboard on touchscreens.
+// Attacking: one pinch = pass, a second quick pinch = shoot instead.
+// Defending: any pinch = attempt a tackle.
+const pgPinch = { startDist:0, fired:false, count:0, timer:null };
+function pgPinchDist(touches) { return Math.hypot(touches[0].clientX-touches[1].clientX, touches[0].clientY-touches[1].clientY); }
+function pgPinchTouchStart(e) {
+  if (e.touches.length === 2) { e.preventDefault(); pgPinch.startDist = pgPinchDist(e.touches); pgPinch.fired = false; }
+}
+function pgPinchTouchMove(e) {
+  if (e.touches.length !== 2 || pgPinch.fired) return;
+  e.preventDefault();
+  if (pgPinch.startDist - pgPinchDist(e.touches) > 35) { pgPinch.fired = true; pgHandlePinch(); }
+}
+function pgPinchTouchEnd(e) { if (e.touches.length < 2) pgPinch.startDist = 0; }
+function pgAttachPinch(el) {
+  if (!el) return;
+  el.addEventListener('touchstart', pgPinchTouchStart, {passive:false});
+  el.addEventListener('touchmove', pgPinchTouchMove, {passive:false});
+  el.addEventListener('touchend', pgPinchTouchEnd, {passive:false});
+  el.addEventListener('touchcancel', pgPinchTouchEnd, {passive:false});
+}
+function pgResetPinch() { pgPinch.count = 0; if (pgPinch.timer) { clearTimeout(pgPinch.timer); pgPinch.timer = null; } }
+function pgHandlePinch() {
+  if (!PG || !PG.phase || PG.phase.resolved) return;
+  if (PG.phase.mode === 'defend') { pgAttemptTackle(); return; }
+  pgPinch.count++;
+  if (pgPinch.count === 1) {
+    pgPinch.timer = setTimeout(()=>{
+      pgPinch.count = 0;
+      if (PG && PG.phase && !PG.phase.resolved && PG.phase.mode==='attack') pgDoPass();
+    }, 420);
+  } else {
+    clearTimeout(pgPinch.timer);
+    pgPinch.count = 0;
+    pgDoShoot();
+  }
+}
 
 function pgAttackTick() {
   if (!PG || !PG.phase || PG.phase.resolved) return;
@@ -1129,6 +1258,11 @@ function pgAttackTick() {
   if (pgKeys.ArrowDown) ph.player.y += speed;
   if (pgKeys.ArrowLeft) ph.player.x -= speed;
   if (pgKeys.ArrowRight) ph.player.x += speed;
+  if (pgMouse.active && pgMouse.x !== null) {
+    const dx = pgMouse.x - ph.player.x, dy = pgMouse.y - ph.player.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > 1.5) { ph.player.x += (dx/dist)*speed; ph.player.y += (dy/dist)*speed; }
+  }
   ph.player.x = Math.max(8, Math.min(92, ph.player.x));
   ph.player.y = Math.max(14, Math.min(90, ph.player.y));
 
@@ -1204,6 +1338,8 @@ function runDefendPhase(attackerCode, defenderCode) {
     ballWith:'ai', passClock:0, tackleCooldown:0, canTackle:false, timeLeft:9000, resolved:false, saveTimer:null,
   };
   pgKeys['ArrowUp']=pgKeys['ArrowDown']=pgKeys['ArrowLeft']=pgKeys['ArrowRight']=false;
+  pgResetPinch();
+  pgResetMouse();
   renderDefendShell();
   pgStartTick(pgDefendTick);
 }
@@ -1216,6 +1352,7 @@ function renderDefendShell() {
     ${pgChancesHTML()}
     <div class="play-timerbar"><i id="pgTimerBar"></i></div>
     <div class="pitch" id="pgPitch">
+      <div class="pinch-badge">🖱️/🤏 click/pinch: tackle</div>
       <div class="goal-box"></div>
       <div class="goal-net"></div>
       <div class="p-ent attacker" id="pgAi"></div>
@@ -1236,9 +1373,11 @@ function renderDefendShell() {
         <button class="btn-pass pg-tackle-btn" id="pgTackleBtn" type="button">🛡 Tackle</button>
       </div>
     </div>
-    <div class="play-hint">Arrows/D-pad to close them down · S or Tackle to dispossess — if they shoot, your keeper reacts automatically</div>`;
+    <div class="play-hint">Move: arrows/D-pad/cursor · Tackle: S / tap Tackle / pinch / click — if they shoot, your keeper reacts automatically · <span style="text-decoration:underline;cursor:pointer;" onclick="showPlayHelp()">full guide</span></div>`;
   wireDpad();
   const tackleBtn = document.getElementById('pgTackleBtn'); if (tackleBtn) tackleBtn.addEventListener('click', pgAttemptTackle);
+  pgAttachPinch(document.getElementById('pgPitch'));
+  pgAttachMouse(document.getElementById('pgPitch'));
   pgUpdateDefendPositions();
 }
 
@@ -1250,6 +1389,11 @@ function pgDefendTick() {
   if (pgKeys.ArrowDown) ph.defender.y += speed;
   if (pgKeys.ArrowLeft) ph.defender.x -= speed;
   if (pgKeys.ArrowRight) ph.defender.x += speed;
+  if (pgMouse.active && pgMouse.x !== null) {
+    const dx = pgMouse.x - ph.defender.x, dy = pgMouse.y - ph.defender.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > 1.5) { ph.defender.x += (dx/dist)*speed; ph.defender.y += (dy/dist)*speed; }
+  }
   ph.defender.x = Math.max(8, Math.min(92, ph.defender.x));
   ph.defender.y = Math.max(14, Math.min(90, ph.defender.y));
 
@@ -1444,7 +1588,7 @@ function checkLiveResults() {
   if (btn) { btn.disabled = true; btn.querySelector('.live-dot')?.classList.add('spin'); }
 
   let updated = 0;
-  ['qf','sf','final'].forEach(round=>{
+  ['r16','qf','sf','final'].forEach(round=>{
     getIds(round).forEach(matchId=>{
       if (picks[matchId]) return;                 // already decided — leave it alone
       const real = LIVE_RESULTS_DB[matchId];
@@ -1492,7 +1636,7 @@ function analyzeAndPick(matchId, round, silentFast) {
 
 // ─── AUTO-PICK: NEXT MATCH ────────────────────────────────────────────────────
 function predictNext() {
-  const rounds=['qf','sf','final'];
+  const rounds=['r16','qf','sf','final'];
   for (const round of rounds) {
     for (const id of getIds(round)) {
       if (!picks[id]) {
@@ -1522,7 +1666,7 @@ function predictAll() {
   btnAll.disabled=true; icon.textContent='⏳'; icon.className='spin';
 
   setTimeout(()=>{
-    const rounds=['qf','sf','final'];
+    const rounds=['r16','qf','sf','final'];
     for (const round of rounds) {
       for (const id of getIds(round)) {
         const {t1,t2} = getMatchTeams(id, round);
@@ -1567,7 +1711,7 @@ function buildStats(champCode) {
 function buildRoad(champCode) {
   const roadBox = document.getElementById('roadBox');
   const list = document.getElementById('roadList');
-  const rounds=['qf','sf','final'];
+  const rounds=['r16','qf','sf','final'];
   let rows='';
   for (const round of rounds) {
     const id = Object.keys(pickMeta).find(mid => pickMeta[mid].round===round && pickMeta[mid].winner===champCode);
@@ -1603,19 +1747,19 @@ function showRound(round) {
 }
 
 function updateProgress() {
-  const total=7; // 4 QF + 2 SF + 1 Final
+  const total=9; // 2 live R16 + 4 QF + 2 SF + 1 Final
   const done=Object.keys(picks).length;
   const pct=Math.round(done/total*100);
   document.getElementById('progressFill').style.width=pct+'%';
   document.getElementById('progressPct').textContent=pct+'%';
-  ['qf','sf','final'].forEach((r)=>{
-    const totals={qf:4,sf:2,final:1};
+  ['r16','qf','sf','final'].forEach((r)=>{
+    const totals={r16:2,qf:4,sf:2,final:1};
     document.getElementById('tab-badge-'+r).textContent=`${getIds(r).filter(id=>picks[id]).length}/${totals[r]}`;
   });
 }
 
 function checkBanners() {
-  [['qf',4],['sf',2],['final',1]].forEach(([r,t])=>{
+  [['r16',2],['qf',4],['sf',2],['final',1]].forEach(([r,t])=>{
     const done=getIds(r).filter(id=>picks[id]).length;
     document.getElementById('banner-'+r).classList.toggle('show',done===t);
   });
@@ -1623,7 +1767,7 @@ function checkBanners() {
 
 function updateButtonStates() {
   const total=Object.keys(picks).length;
-  document.getElementById('btnNext').disabled = total>=7;
+  document.getElementById('btnNext').disabled = total>=9;
 }
 
 function resetAll() {
@@ -1632,7 +1776,7 @@ function resetAll() {
   upsetCount = 0;
   buildR16(); buildLater(); updateProgress(); checkBanners();
   document.getElementById('winner-section').style.display='none';
-  showRound('qf');
+  showRound('r32');
   updateButtonStates();
 }
 
@@ -1692,10 +1836,6 @@ window.addEventListener('resize', ()=>{
 });
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-function closeWelcome() {
-  document.getElementById('welcomeOverlay').classList.remove('show');
-  showRound('qf');
-}
 buildFavStrip();
 buildR32();
 buildR16();
