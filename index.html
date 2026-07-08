@@ -169,6 +169,9 @@
   .play-wrap{ width:100%; max-width:420px; background:linear-gradient(160deg,#0b0f1c,#0e1428); border:1px solid var(--border-lit); border-radius:16px; padding:16px; box-shadow:0 30px 80px rgba(0,0,0,0.6); position:relative; max-height:96vh; overflow-y:auto; }
   .play-close{ position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:var(--panel3); border:1px solid var(--border-lit); color:var(--muted); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:5; }
   .play-close:hover{ color:var(--danger); border-color:var(--danger); }
+  .play-help{ position:absolute; top:10px; left:10px; width:28px; height:28px; border-radius:50%; background:var(--panel3); border:1px solid var(--border-lit); color:var(--gold-light); font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:5; font-family:'Rajdhani',sans-serif; }
+  .play-help:hover{ color:var(--gold); border-color:var(--gold); box-shadow:0 0 10px var(--gold-glow); }
+  .pinch-badge{ position:absolute; top:8px; right:8px; background:rgba(10,14,24,0.7); border:1px solid var(--border-lit); color:var(--gold-light); font-size:9px; letter-spacing:.5px; padding:3px 7px; border-radius:12px; pointer-events:none; opacity:.85; }
   .play-header{ display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:8px; padding-right:26px; }
   .play-header .ph-team{ display:flex; align-items:center; gap:6px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; }
   .play-header .ph-team img{ width:22px; height:16px; object-fit:cover; border-radius:2px; }
@@ -208,6 +211,10 @@
   .dpad button:active{ background:var(--gold); color:#0A0E18; }
   .dpad .d-up{grid-column:2;grid-row:1;} .dpad .d-left{grid-column:1;grid-row:2;} .dpad .d-right{grid-column:3;grid-row:2;} .dpad .d-down{grid-column:2;grid-row:3;}
   .action-btns{ display:flex; flex-direction:column; gap:6px; }
+  html.touch-device .dpad{ grid-template-columns:repeat(3,46px); grid-template-rows:repeat(3,46px); gap:5px; }
+  html.touch-device .dpad button{ font-size:18px; }
+  html.touch-device .action-btns button{ padding:14px 18px; font-size:14px; }
+  html.touch-device .pen-aim button{ padding:16px 0; font-size:23px; }
   .action-btns button{ font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12px; letter-spacing:.5px; border-radius:7px; padding:9px 16px; cursor:pointer; border:1px solid var(--border-lit); touch-action:none; }
   .btn-pass{ background:var(--panel3); color:var(--gold-light); }
   .btn-pass:active{ background:var(--gold); color:#0A0E18; }
@@ -224,6 +231,19 @@
   .pen-aim{ display:flex; gap:8px; justify-content:center; margin-top:10px; }
   .pen-aim button{ flex:1; max-width:90px; background:var(--panel3); border:1px solid var(--border-lit); color:var(--text); border-radius:7px; padding:12px 0; font-size:20px; cursor:pointer; }
   .pen-aim button:hover{ background:var(--gold); color:#0A0E18; }
+
+  /* ───── HOW-TO-PLAY GUIDE ───── */
+  .help-overlay{ position:fixed; inset:0; z-index:10001; background:rgba(4,6,11,0.92); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; padding:16px; }
+  .help-overlay.show{ display:flex; }
+  .help-wrap{ width:100%; max-width:400px; max-height:88vh; overflow-y:auto; background:linear-gradient(160deg,#0b0f1c,#0e1428); border:1px solid var(--border-lit); border-radius:16px; padding:22px 20px 18px; position:relative; box-shadow:0 30px 80px rgba(0,0,0,0.6); }
+  .help-wrap h3{ font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1.5px; color:var(--gold-light); margin-bottom:14px; text-align:center; }
+  .help-section{ margin-bottom:16px; }
+  .help-section h4{ font-size:12.5px; letter-spacing:.5px; color:var(--text); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .help-section ul{ list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .help-section li{ font-size:12px; color:var(--muted); line-height:1.5; padding-left:14px; position:relative; }
+  .help-section li::before{ content:'•'; position:absolute; left:0; color:var(--gold); }
+  .help-section li b{ color:var(--text); }
+  .help-foot{ font-size:11px; color:var(--muted-dim); text-align:center; margin-top:2px; }
 
   /* ───── PLAY MINI-GAME: team select / toss / defend extras ───── */
   .pg-team-select{ border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:12px 0; }
@@ -470,8 +490,41 @@
 <!-- ───── PLAY MINI-GAME OVERLAY ───── -->
 <div class="play-overlay" id="playOverlay">
   <div class="play-wrap" id="playWrap">
+    <button class="play-help" id="playHelpBtn" onclick="showPlayHelp()" type="button" title="How to play">?</button>
     <button class="play-close" onclick="closePlayOverlay()">✕</button>
     <div id="playContent"></div>
+  </div>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-wrap">
+    <button class="play-close" onclick="closeHelp()" type="button">✕</button>
+    <h3>⚽ How To Play</h3>
+    <div class="help-section">
+      <h4>⚔️ Attacking (you have the ball)</h4>
+      <ul>
+        <li><b>Keyboard:</b> Arrow keys to move · A to pass · S to shoot</li>
+        <li><b>Mouse / Tap on D-pad:</b> Click the on-screen D-pad to move · click Pass or Shoot</li>
+        <li><b>Mouse cursor:</b> Move your cursor over the pitch — your player follows it · one click = pass · two quick clicks = shoot</li>
+        <li><b>Touch gesture:</b> Pinch once on the pitch to pass · pinch twice quickly in a row to shoot</li>
+      </ul>
+    </div>
+    <div class="help-section">
+      <h4>🛡 Defending</h4>
+      <ul>
+        <li><b>Keyboard:</b> Arrow keys to move · S to tackle</li>
+        <li><b>Mouse / Tap on D-pad:</b> Click the on-screen D-pad to move · click Tackle</li>
+        <li><b>Mouse cursor:</b> Move your cursor over the pitch — your defender follows it · click to attempt a tackle</li>
+        <li><b>Touch gesture:</b> Pinch on the pitch to attempt a tackle</li>
+      </ul>
+    </div>
+    <div class="help-section" style="margin-bottom:6px;">
+      <h4>🥅 Penalties</h4>
+      <ul>
+        <li>Click or tap left, center, or right to aim your shot — or to dive for a save</li>
+      </ul>
+    </div>
+    <div class="help-foot">Use whichever suits your device — keyboard, mouse, and touch all play the same game.</div>
   </div>
 </div>
 
@@ -871,6 +924,13 @@ function cascadeClear(matchId,round) {
 
 // ─── PLAY MINI-GAME (interactive match resolution) ───────────────────────────
 let PG = null;            // active play-game state
+// ─── Touch-device detection (bigger tap targets + enables pinch gestures) ───
+const IS_TOUCH_DEVICE = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+if (IS_TOUCH_DEVICE) document.documentElement.classList.add('touch-device');
+
+function showPlayHelp() { document.getElementById('helpOverlay').classList.add('show'); }
+function closeHelp() { document.getElementById('helpOverlay').classList.remove('show'); }
+
 const pgKeys = {};        // currently-held movement keys
 let pgKeyBound = false;
 
@@ -891,6 +951,8 @@ function playMatch(matchId, round) {
 function closePlayOverlay() {
   document.getElementById('playOverlay').classList.remove('show');
   pgStopTick();
+  pgResetPinch();
+  pgResetMouse();
   if (PG && PG.phase && PG.phase.saveTimer) clearInterval(PG.phase.saveTimer);
   PG = null;
 }
@@ -1053,6 +1115,46 @@ function wireDpad(idMap) {
   });
 }
 
+// ─── Mouse cursor control — an alternative to keyboard/D-pad/pinch.
+// The controlled player steers toward the cursor's position on the pitch.
+// One click = pass (defend: tackle); two quick clicks = shoot.
+const pgMouse = { active:false, x:null, y:null, clickCount:0, clickTimer:null };
+function pgMouseMoveHandler(e) {
+  if (e.pointerType === 'touch') return; // touch already has its own gestures
+  const pitch = e.currentTarget;
+  const rect = pitch.getBoundingClientRect();
+  pgMouse.active = true;
+  pgMouse.x = Math.max(0, Math.min(100, ((e.clientX-rect.left)/rect.width)*100));
+  pgMouse.y = Math.max(0, Math.min(100, ((e.clientY-rect.top)/rect.height)*100));
+}
+function pgMouseLeaveHandler() { pgMouse.active = false; }
+function pgMouseClickHandler(e) {
+  if (e.pointerType === 'touch') return;
+  if (!PG || !PG.phase || PG.phase.resolved) return;
+  if (PG.phase.mode === 'defend') { pgAttemptTackle(); return; }
+  pgMouse.clickCount++;
+  if (pgMouse.clickCount === 1) {
+    pgMouse.clickTimer = setTimeout(()=>{
+      pgMouse.clickCount = 0;
+      if (PG && PG.phase && !PG.phase.resolved && PG.phase.mode==='attack') pgDoPass();
+    }, 350);
+  } else {
+    clearTimeout(pgMouse.clickTimer);
+    pgMouse.clickCount = 0;
+    pgDoShoot();
+  }
+}
+function pgResetMouse() {
+  pgMouse.active = false; pgMouse.x = null; pgMouse.y = null; pgMouse.clickCount = 0;
+  if (pgMouse.clickTimer) { clearTimeout(pgMouse.clickTimer); pgMouse.clickTimer = null; }
+}
+function pgAttachMouse(el) {
+  if (!el) return;
+  el.addEventListener('pointermove', pgMouseMoveHandler);
+  el.addEventListener('pointerleave', pgMouseLeaveHandler);
+  el.addEventListener('click', pgMouseClickHandler);
+}
+
 // ─── ATTACK phase — user's team has the ball (2 attackers vs 1 defender + keeper) ─
 function runAttackPhase(attackerCode, defenderCode) {
   const params = computeDifficulty(attackerCode, defenderCode);
@@ -1062,6 +1164,8 @@ function runAttackPhase(attackerCode, defenderCode) {
     ballWith:'player', possessionChangeTime:Date.now(), timeLeft:9000, resolved:false,
   };
   pgKeys['ArrowUp']=pgKeys['ArrowDown']=pgKeys['ArrowLeft']=pgKeys['ArrowRight']=false;
+  pgResetPinch();
+  pgResetMouse();
   renderAttackShell();
   pgStartTick(pgAttackTick);
 }
@@ -1074,6 +1178,7 @@ function renderAttackShell() {
     ${pgChancesHTML()}
     <div class="play-timerbar"><i id="pgTimerBar"></i></div>
     <div class="pitch" id="pgPitch">
+      <div class="pinch-badge">🖱️/🤏 1×: pass · 2×: shoot</div>
       <div class="goal-box"></div>
       <div class="goal-net"></div>
       <div class="p-ent attacker" id="pgAi"></div>
@@ -1095,15 +1200,55 @@ function renderAttackShell() {
         <button class="btn-shoot" id="pgShootBtn" type="button">⚽ Shoot</button>
       </div>
     </div>
-    <div class="play-hint">Arrows/D-pad to move · A to pass · S to shoot — result is instant, based on your position</div>`;
+    <div class="play-hint">Move: arrows/D-pad/cursor · Pass: A / tap Pass / pinch once / click once · Shoot: S / tap Shoot / pinch twice / click twice · <span style="text-decoration:underline;cursor:pointer;" onclick="showPlayHelp()">full guide</span></div>`;
   wireDpad();
   const passBtn = document.getElementById('pgPassBtn'); if (passBtn) passBtn.addEventListener('click', pgDoPass);
   const shootBtn = document.getElementById('pgShootBtn'); if (shootBtn) shootBtn.addEventListener('click', pgDoShoot);
+  pgAttachPinch(document.getElementById('pgPitch'));
+  pgAttachMouse(document.getElementById('pgPitch'));
   pgUpdatePositions();
 }
 
 function pgStartTick(fn) { pgStopTick(); PG.tickTimer = setInterval(fn, 100); }
 function pgStopTick() { if (PG && PG.tickTimer) { clearInterval(PG.tickTimer); PG.tickTimer=null; } }
+
+// ─── Pinch gestures — an alternative to buttons/keyboard on touchscreens.
+// Attacking: one pinch = pass, a second quick pinch = shoot instead.
+// Defending: any pinch = attempt a tackle.
+const pgPinch = { startDist:0, fired:false, count:0, timer:null };
+function pgPinchDist(touches) { return Math.hypot(touches[0].clientX-touches[1].clientX, touches[0].clientY-touches[1].clientY); }
+function pgPinchTouchStart(e) {
+  if (e.touches.length === 2) { e.preventDefault(); pgPinch.startDist = pgPinchDist(e.touches); pgPinch.fired = false; }
+}
+function pgPinchTouchMove(e) {
+  if (e.touches.length !== 2 || pgPinch.fired) return;
+  e.preventDefault();
+  if (pgPinch.startDist - pgPinchDist(e.touches) > 35) { pgPinch.fired = true; pgHandlePinch(); }
+}
+function pgPinchTouchEnd(e) { if (e.touches.length < 2) pgPinch.startDist = 0; }
+function pgAttachPinch(el) {
+  if (!el) return;
+  el.addEventListener('touchstart', pgPinchTouchStart, {passive:false});
+  el.addEventListener('touchmove', pgPinchTouchMove, {passive:false});
+  el.addEventListener('touchend', pgPinchTouchEnd, {passive:false});
+  el.addEventListener('touchcancel', pgPinchTouchEnd, {passive:false});
+}
+function pgResetPinch() { pgPinch.count = 0; if (pgPinch.timer) { clearTimeout(pgPinch.timer); pgPinch.timer = null; } }
+function pgHandlePinch() {
+  if (!PG || !PG.phase || PG.phase.resolved) return;
+  if (PG.phase.mode === 'defend') { pgAttemptTackle(); return; }
+  pgPinch.count++;
+  if (pgPinch.count === 1) {
+    pgPinch.timer = setTimeout(()=>{
+      pgPinch.count = 0;
+      if (PG && PG.phase && !PG.phase.resolved && PG.phase.mode==='attack') pgDoPass();
+    }, 420);
+  } else {
+    clearTimeout(pgPinch.timer);
+    pgPinch.count = 0;
+    pgDoShoot();
+  }
+}
 
 function pgAttackTick() {
   if (!PG || !PG.phase || PG.phase.resolved) return;
@@ -1113,6 +1258,11 @@ function pgAttackTick() {
   if (pgKeys.ArrowDown) ph.player.y += speed;
   if (pgKeys.ArrowLeft) ph.player.x -= speed;
   if (pgKeys.ArrowRight) ph.player.x += speed;
+  if (pgMouse.active && pgMouse.x !== null) {
+    const dx = pgMouse.x - ph.player.x, dy = pgMouse.y - ph.player.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > 1.5) { ph.player.x += (dx/dist)*speed; ph.player.y += (dy/dist)*speed; }
+  }
   ph.player.x = Math.max(8, Math.min(92, ph.player.x));
   ph.player.y = Math.max(14, Math.min(90, ph.player.y));
 
@@ -1188,6 +1338,8 @@ function runDefendPhase(attackerCode, defenderCode) {
     ballWith:'ai', passClock:0, tackleCooldown:0, canTackle:false, timeLeft:9000, resolved:false, saveTimer:null,
   };
   pgKeys['ArrowUp']=pgKeys['ArrowDown']=pgKeys['ArrowLeft']=pgKeys['ArrowRight']=false;
+  pgResetPinch();
+  pgResetMouse();
   renderDefendShell();
   pgStartTick(pgDefendTick);
 }
@@ -1200,6 +1352,7 @@ function renderDefendShell() {
     ${pgChancesHTML()}
     <div class="play-timerbar"><i id="pgTimerBar"></i></div>
     <div class="pitch" id="pgPitch">
+      <div class="pinch-badge">🖱️/🤏 click/pinch: tackle</div>
       <div class="goal-box"></div>
       <div class="goal-net"></div>
       <div class="p-ent attacker" id="pgAi"></div>
@@ -1220,9 +1373,11 @@ function renderDefendShell() {
         <button class="btn-pass pg-tackle-btn" id="pgTackleBtn" type="button">🛡 Tackle</button>
       </div>
     </div>
-    <div class="play-hint">Arrows/D-pad to close them down · S or Tackle to dispossess — if they shoot, your keeper reacts automatically</div>`;
+    <div class="play-hint">Move: arrows/D-pad/cursor · Tackle: S / tap Tackle / pinch / click — if they shoot, your keeper reacts automatically · <span style="text-decoration:underline;cursor:pointer;" onclick="showPlayHelp()">full guide</span></div>`;
   wireDpad();
   const tackleBtn = document.getElementById('pgTackleBtn'); if (tackleBtn) tackleBtn.addEventListener('click', pgAttemptTackle);
+  pgAttachPinch(document.getElementById('pgPitch'));
+  pgAttachMouse(document.getElementById('pgPitch'));
   pgUpdateDefendPositions();
 }
 
@@ -1234,6 +1389,11 @@ function pgDefendTick() {
   if (pgKeys.ArrowDown) ph.defender.y += speed;
   if (pgKeys.ArrowLeft) ph.defender.x -= speed;
   if (pgKeys.ArrowRight) ph.defender.x += speed;
+  if (pgMouse.active && pgMouse.x !== null) {
+    const dx = pgMouse.x - ph.defender.x, dy = pgMouse.y - ph.defender.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > 1.5) { ph.defender.x += (dx/dist)*speed; ph.defender.y += (dy/dist)*speed; }
+  }
   ph.defender.x = Math.max(8, Math.min(92, ph.defender.x));
   ph.defender.y = Math.max(14, Math.min(90, ph.defender.y));
 
