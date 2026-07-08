@@ -1793,9 +1793,9 @@ function resetAll() {
   updateButtonStates();
 }
 
-// ─── CONTENDERS TICKER (only the 10 teams still alive) ───────────────────────
+// ─── CONTENDERS TICKER (only the 8 quarterfinalists still alive) ─────────────
 function buildFavStrip() {
-  const alive = ['FRA','ARG','ESP','ENG','COL','BEL','MAR','SUI','NOR','EGY'];
+  const alive = ['FRA','ARG','ESP','ENG','BEL','MAR','SUI','NOR'];
   const list = document.getElementById('favList');
   const sorted = alive.slice().sort((a,b)=>(STRENGTH[b]||0)-(STRENGTH[a]||0));
   list.innerHTML = sorted.map(code=>{
