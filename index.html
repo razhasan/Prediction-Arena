@@ -1141,7 +1141,7 @@ function wireDpad(idMap) {
 // One click = pass (defend: tackle); two quick clicks = shoot.
 const pgMouse = { active:false, x:null, y:null, clickCount:0, clickTimer:null };
 function pgMouseMoveHandler(e) {
-  if (e.pointerType === 'touch') return; // touch already has its own gestures
+  if (e.pointerType === 'touch' && pgPinch.multiTouch) return; // a 2-finger pinch is in progress — that's the tackle gesture, don't steer
   const pitch = e.currentTarget;
   const rect = pitch.getBoundingClientRect();
   pgMouse.active = true;
@@ -1173,6 +1173,8 @@ function pgAttachMouse(el) {
   if (!el) return;
   el.addEventListener('pointermove', pgMouseMoveHandler);
   el.addEventListener('pointerleave', pgMouseLeaveHandler);
+  el.addEventListener('pointerup', pgMouseLeaveHandler);
+  el.addEventListener('pointercancel', pgMouseLeaveHandler);
   el.addEventListener('click', pgMouseClickHandler);
 }
 
@@ -1236,17 +1238,19 @@ function pgStopTick() { if (PG && PG.tickTimer) { clearInterval(PG.tickTimer); P
 // ─── Pinch gestures — an alternative to buttons/keyboard on touchscreens.
 // Attacking: one pinch = pass, a second quick pinch = shoot instead.
 // Defending: any pinch = attempt a tackle.
-const pgPinch = { startDist:0, fired:false, count:0, timer:null };
+const pgPinch = { startDist:0, fired:false, count:0, timer:null, multiTouch:false };
 function pgPinchDist(touches) { return Math.hypot(touches[0].clientX-touches[1].clientX, touches[0].clientY-touches[1].clientY); }
 function pgPinchTouchStart(e) {
+  pgPinch.multiTouch = e.touches.length >= 2;
   if (e.touches.length === 2) { e.preventDefault(); pgPinch.startDist = pgPinchDist(e.touches); pgPinch.fired = false; }
 }
 function pgPinchTouchMove(e) {
+  pgPinch.multiTouch = e.touches.length >= 2;
   if (e.touches.length !== 2 || pgPinch.fired) return;
   e.preventDefault();
   if (pgPinch.startDist - pgPinchDist(e.touches) > 35) { pgPinch.fired = true; pgHandlePinch(); }
 }
-function pgPinchTouchEnd(e) { if (e.touches.length < 2) pgPinch.startDist = 0; }
+function pgPinchTouchEnd(e) { pgPinch.multiTouch = e.touches.length >= 2; if (e.touches.length < 2) pgPinch.startDist = 0; }
 function pgAttachPinch(el) {
   if (!el) return;
   el.addEventListener('touchstart', pgPinchTouchStart, {passive:false});
