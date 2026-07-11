@@ -717,7 +717,12 @@ const R16_RESULTS = [
 // left for the user to decide manually, via 🔮 Predict, or by playing it out
 // with ▶ Play.
 const LIVE_RESULTS_DB = {
-  // e.g. 'qf-01': { winner:'FRA', loser:'MAR', wG:2, lG:1, pen:'' },
+  // Confirmed, official full-time results — add an entry the moment a match
+  // finishes and "Check Live Results" will lock it in automatically.
+  'qf-01': { winner:'FRA', loser:'MAR', wG:2, lG:0, pen:'' }, // France 2-0 Morocco, Jul 9
+  'qf-02': { winner:'ESP', loser:'BEL', wG:2, lG:1, pen:'' }, // Spain 2-1 Belgium, Jul 10
+  // qf-03 (Norway v England) and qf-04 (Argentina v Switzerland) play Jul 11 —
+  // add their entries here as soon as those matches finish (real winner/loser/score).
 };
 
 // ─── QUARTERFINALS: bracket is fully set now that Round of 16 is complete ───
@@ -898,6 +903,8 @@ function pick(matchId,code,round,opts) {
       showToast(`🔮 ${T[code].name} predicted to win ${st} vs. ${T[opp].name}.`);
     }
   }
+
+  buildFavStrip();
 
   const nr=nextRound(round);
   if (!nr) { if (round==='final') revealWinner(code); updateProgress(); checkBanners(); return; }
@@ -1672,7 +1679,7 @@ function predictAll() {
   Object.keys(picks).forEach(k=>delete picks[k]);
   Object.keys(pickMeta).forEach(k=>delete pickMeta[k]);
   upsetCount = 0;
-  buildR16(); buildLater(); updateProgress(); checkBanners();
+  buildR16(); buildLater(); buildFavStrip(); updateProgress(); checkBanners();
   document.getElementById('winner-section').style.display='none';
 
   const btnAll=document.getElementById('btnAll');
@@ -1788,15 +1795,33 @@ function resetAll() {
   Object.keys(picks).forEach(k=>delete picks[k]);
   Object.keys(pickMeta).forEach(k=>delete pickMeta[k]);
   upsetCount = 0;
-  buildR16(); buildLater(); updateProgress(); checkBanners();
+  buildR16(); buildLater(); buildFavStrip(); updateProgress(); checkBanners();
   document.getElementById('winner-section').style.display='none';
   showRound('qf');
   updateButtonStates();
 }
 
-// ─── CONTENDERS TICKER (only the 8 quarterfinalists still alive) ─────────────
+// ─── CONTENDERS TICKER (only teams still alive in the bracket) ───────────────
+// Recomputed from `picks` every time it's called, so a team drops off the
+// instant it's marked as eliminated (via Check Live Results, Predict, or Play).
+function getAliveTeams() {
+  const initial8 = ['FRA','MAR','ESP','BEL','NOR','ENG','ARG','SUI'];
+  const eliminated = new Set();
+  QF_FIXED.forEach(m=>{
+    const winner = picks[m.id];
+    if (winner) eliminated.add(winner===m.t1 ? m.t2 : m.t1);
+  });
+  getIds('sf').forEach(mid=>{
+    const winner = picks[mid];
+    if (!winner) return;
+    const {t1,t2} = getMatchTeams(mid,'sf');
+    const loser = winner===t1 ? t2 : t1;
+    if (loser) eliminated.add(loser);
+  });
+  return initial8.filter(code=>!eliminated.has(code));
+}
 function buildFavStrip() {
-  const alive = ['FRA','ARG','ESP','ENG','BEL','MAR','SUI','NOR'];
+  const alive = getAliveTeams();
   const list = document.getElementById('favList');
   const sorted = alive.slice().sort((a,b)=>(STRENGTH[b]||0)-(STRENGTH[a]||0));
   list.innerHTML = sorted.map(code=>{
