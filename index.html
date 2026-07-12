@@ -454,7 +454,7 @@
 
   <div class="round-section active" id="section-qf">
     <div class="round-header"><h2>Quarterfinals</h2><div class="line"></div><div class="count">Jul 9 – Jul 11</div></div>
-    <div class="section-note">The Round of 16 is complete and the Quarterfinal bracket is fully set: <strong>France vs. Morocco</strong>, <strong>Norway vs. England</strong>, <strong>Spain vs. Belgium</strong>, and <strong>Argentina vs. Switzerland</strong>.</div>
+    <div class="section-note">✅ All 4 Quarterfinal matches are complete. <strong>France</strong> beat Morocco 2–0, <strong>Spain</strong> edged Belgium 2–1, <strong>England</strong> beat Norway 2–1 (AET), and <strong>Argentina</strong> beat Switzerland 3–1 (AET). The Semifinal bracket is set: France vs. Spain (Jul 14) and England vs. Argentina (Jul 15).</div>
     <div class="prob-legend">
       <strong>Win probability:</strong>
       <span><div class="dot high"></div>60%+ Likely</span>
@@ -566,7 +566,7 @@ const T = {
   SWE:{name:'Sweden',        iso:'se',     emoji:'🇸🇪'},
   MEX:{name:'Mexico',        iso:'mx',     emoji:'🇲🇽'},
   ECU:{name:'Ecuador',       iso:'ec',     emoji:'🇪🇨'},
-  ENG:{name:'England',       iso:'gb-eng', emoji:'🏴'},
+  ENG:{name:'England',       iso:'gb-eng', emoji:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
   SEN:{name:'Senegal',       iso:'sn',     emoji:'🇸🇳'},
   BEL:{name:'Belgium',       iso:'be',     emoji:'🇧🇪'},
   USA:{name:'United States', iso:'us',     emoji:'🇺🇸'},
@@ -666,6 +666,7 @@ function scoreText(scoreInfo) {
 function flagHTML(code) {
   const t = T[code];
   if (!t) return '';
+  if (code === 'ENG') return `<div class="flag-wrap" style="font-size:18px;">${t.emoji}</div>`;
   return `<div class="flag-wrap"><img src="https://flagcdn.com/w80/${t.iso}.png"
     alt="${t.name}" loading="lazy"
     onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${t.emoji}'}))"></div>`;
@@ -673,6 +674,7 @@ function flagHTML(code) {
 function flagHTMLBig(code) {
   const t = T[code];
   if (!t) return '';
+  if (code === 'ENG') return `<span style="font-size:70px;">${t.emoji}</span>`;
   return `<img src="https://flagcdn.com/w320/${t.iso}.png" alt="${t.name}"
     onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${t.emoji}',style:'font-size:70px'}))">`;
 }
@@ -721,8 +723,10 @@ const LIVE_RESULTS_DB = {
   // finishes and "Check Live Results" will lock it in automatically.
   'qf-01': { winner:'FRA', loser:'MAR', wG:2, lG:0, pen:'' }, // France 2-0 Morocco, Jul 9
   'qf-02': { winner:'ESP', loser:'BEL', wG:2, lG:1, pen:'' }, // Spain 2-1 Belgium, Jul 10
-  // qf-03 (Norway v England) and qf-04 (Argentina v Switzerland) play Jul 11 —
-  // add their entries here as soon as those matches finish (real winner/loser/score).
+  'qf-03': { winner:'ENG', loser:'NOR', wG:2, lG:1, pen:'' }, // England 2-1 Norway (AET), Jul 11
+  'qf-04': { winner:'ARG', loser:'SUI', wG:3, lG:1, pen:'' }, // Argentina 3-1 Switzerland (AET), Jul 11
+  // All four Quarterfinals are now complete — the Semifinal bracket is fully set:
+  // Semifinal 1: England vs. Argentina (Atlanta) · Semifinal 2: Spain vs. France
 };
 
 // ─── QUARTERFINALS: bracket is fully set now that Round of 16 is complete ───
@@ -796,11 +800,14 @@ function buildLater() {
   const gq=document.getElementById('grid-qf'); gq.innerHTML='';
   QF_FIXED.forEach(m=>gq.appendChild(makeCard(m.id, m.label, m.date, m.t1, m.t2, 'qf')));
 
+  const SF_DATES = ['Jul 14 · Dallas', 'Jul 15 · Atlanta'];
+  const FINAL_DATES = ['Jul 19 · East Rutherford'];
   ['sf','final'].forEach(round=>{
     const g=document.getElementById('grid-'+round); g.innerHTML='';
+    const dates = round==='sf' ? SF_DATES : FINAL_DATES;
     getIds(round).forEach((mid,i)=>{
       const {t1,t2} = getMatchTeams(mid, round);
-      g.appendChild(makeCard(mid, `Match ${i+1}`, '', t1, t2, round));
+      g.appendChild(makeCard(mid, `Match ${i+1}`, dates[i]||'', t1, t2, round));
     });
   });
 }
@@ -1887,8 +1894,13 @@ buildFavStrip();
 buildR32();
 buildR16();
 buildLater();
+checkLiveResults();          // lock in confirmed real-world results (Quarterfinals) on load
+buildFavStrip();
+buildLater();
 updateProgress();
+checkBanners();
 updateButtonStates();
+if (getIds('qf').every(id=>picks[id])) showRound('sf');  // Quarterfinals done → jump to Semifinals
 </script>
   <script>
 if ('serviceWorker' in navigator) {
