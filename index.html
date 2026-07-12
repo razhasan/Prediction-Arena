@@ -48,6 +48,16 @@
   .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--danger); animation:livePulse 1.2s ease-in-out infinite; }
   @keyframes livePulse{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
 
+  /* ───── SHARE BUTTON ───── */
+  .share-wrap{ position:relative; }
+  .share-btn{ display:flex; align-items:center; gap:6px; background:#25D366; color:#06170e; border:none; font-family:'Bebas Neue',sans-serif; letter-spacing:1px; font-size:12.5px; padding:8px 14px; border-radius:5px; cursor:pointer; box-shadow:0 2px 14px rgba(37,211,102,0.4); transition:filter .15s, transform .15s; white-space:nowrap; }
+  .share-btn:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+  .share-menu{ display:none; position:fixed; background:var(--panel3); border:1px solid var(--border-lit); border-radius:10px; padding:6px; min-width:180px; z-index:9999; box-shadow:0 12px 34px rgba(0,0,0,0.6); }
+  .share-menu.show{ display:flex; flex-direction:column; gap:3px; }
+  .share-menu button{ display:flex; align-items:center; gap:9px; background:transparent; border:none; color:var(--text); font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600; padding:9px 10px; border-radius:6px; cursor:pointer; text-align:left; width:100%; transition:background .15s; }
+  .share-menu button:hover{ background:var(--panel2); color:var(--gold-light); }
+  .share-menu .share-menu-label{ font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted-dim); padding:6px 10px 2px; }
+
   /* ───── CONTENDERS TICKER ───── */
   .fav-strip{ background:var(--panel); border-bottom:1px solid var(--border); overflow:hidden; position:relative; z-index:1; }
   .fav-strip-inner{ max-width:1560px; margin:0 auto; padding:11px 32px; display:flex; align-items:center; gap:14px; }
@@ -389,8 +399,18 @@
       <p>USA · Canada · Mexico &nbsp;·&nbsp; Prediction Arena</p>
     </div>
     <div class="header-badges">
-      <div class="header-badge live"><span class="live-dot"></span>QUARTERFINALS BEGIN JUL 9</div>
-      <div class="header-badge">8 TEAMS REMAIN</div>
+      <div class="header-badge live" id="stageBadge"><span class="live-dot"></span>SEMIFINALS · JUL 14–15</div>
+      <div class="header-badge">4 TEAMS REMAIN</div>
+      <div class="share-wrap">
+        <button class="share-btn" type="button" onclick="event.stopPropagation();toggleShareMenu()">📲 Share</button>
+        <div class="share-menu" id="shareMenu">
+          <div class="share-menu-label">Choose language</div>
+          <button type="button" onclick="shareWhatsApp('en')">🇬🇧 English</button>
+          <button type="button" onclick="shareWhatsApp('fr')">🇫🇷 Français</button>
+          <button type="button" onclick="shareWhatsApp('ur')">🇵🇰 اردو</button>
+          <button type="button" onclick="shareWhatsApp('nl')">🇳🇱 Nederlands</button>
+        </div>
+      </div>
     </div>
   </div>
 </header>
@@ -726,8 +746,37 @@ const LIVE_RESULTS_DB = {
   'qf-03': { winner:'ENG', loser:'NOR', wG:2, lG:1, pen:'' }, // England 2-1 Norway (AET), Jul 11
   'qf-04': { winner:'ARG', loser:'SUI', wG:3, lG:1, pen:'' }, // Argentina 3-1 Switzerland (AET), Jul 11
   // All four Quarterfinals are now complete — the Semifinal bracket is fully set:
-  // Semifinal 1: England vs. Argentina (Atlanta) · Semifinal 2: Spain vs. France
+  // Semifinal 1: France vs. Spain (Dallas, Jul 14) · Semifinal 2: England vs. Argentina (Atlanta, Jul 15)
 };
+
+// ─── STAGE SCHEDULE (kickoff date/time kept here; badge is derived from it) ──
+// All times are the official ET kickoff times for each stage. The header badge
+// checks the current date/time against these and shows whichever stage is
+// "live or next" — no manual updates needed as the tournament progresses.
+const STAGE_SCHEDULE = {
+  sf1:   { label:'Semifinal 1 (France vs. Spain)',       kickoff:'2026-07-14T15:00:00-04:00', venue:'Dallas' },
+  sf2:   { label:'Semifinal 2 (England vs. Argentina)',  kickoff:'2026-07-15T15:00:00-04:00', venue:'Atlanta' },
+  final: { label:'Final',                                kickoff:'2026-07-19T15:00:00-04:00', venue:'MetLife Stadium, East Rutherford, NJ' },
+};
+
+function updateStageBadge() {
+  const el = document.getElementById('stageBadge');
+  if (!el) return;
+  const now = new Date();
+  const sf1 = new Date(STAGE_SCHEDULE.sf1.kickoff);
+  const sf2 = new Date(STAGE_SCHEDULE.sf2.kickoff);
+
+  if (now > sf2) {
+    // Second Semifinal has kicked off (i.e. we're past Jul 15) — show the Final
+    el.innerHTML = `<span class="live-dot"></span>FINAL · SUN JUL 19 · ${STAGE_SCHEDULE.final.venue}`;
+  } else if (now > sf1) {
+    // Past the first Semifinal's kickoff but not yet the second — show SF2
+    el.innerHTML = `<span class="live-dot"></span>SECOND SEMIFINAL BEGINS JUL 15`;
+  } else {
+    // Before Jul 14 kickoff — show the original Semifinals-begin message
+    el.innerHTML = `<span class="live-dot"></span>SEMIFINALS · JUL 14–15`;
+  }
+}
 
 // ─── QUARTERFINALS: bracket is fully set now that Round of 16 is complete ───
 const QF_FIXED = [
@@ -1758,6 +1807,46 @@ function buildRoad(champCode) {
   else roadBox.style.display='none';
 }
 
+// ─── SHARE VIA WHATSAPP ───────────────────────────────────────────────────────
+const SHARE_MESSAGES = {
+  en: "⚽🏆 Come predict the FIFA World Cup 2026 knockouts with me! Pick winners, play out matches & crown your champion. Jump in and enjoy 🔥👇",
+  fr: "⚽🏆 Viens prédire les phases finales de la Coupe du Monde 2026 avec moi ! Choisis les vainqueurs, joue les matchs et sacre ton champion. Amuse-toi bien 🔥👇",
+  ur: "⚽🏆 میرے ساتھ فیفا ورلڈ کپ 2026 کے ناک آؤٹ میچز کی پیشگوئی کریں! فاتح چنیں، میچز کھیلیں اور اپنا چیمپیئن بنائیں۔ آئیں اور لطف اٹھائیں 🔥👇",
+  nl: "⚽🏆 Voorspel met mij de knock-outfase van het WK 2026! Kies winnaars, speel wedstrijden na en kroon je kampioen. Doe mee en veel plezier 🔥👇",
+};
+function toggleShareMenu() {
+  const menu = document.getElementById('shareMenu');
+  const btn = document.querySelector('.share-btn');
+  const willShow = !menu.classList.contains('show');
+  if (willShow && btn) {
+    const r = btn.getBoundingClientRect();
+    menu.style.top = Math.round(r.bottom + 8) + 'px';
+    menu.style.left = Math.max(8, Math.round(r.right - menu.offsetWidth || r.left)) + 'px';
+    // Fallback measure after showing, in case offsetWidth was 0 (menu was display:none)
+    menu.classList.add('show');
+    const mw = menu.offsetWidth;
+    let left = r.right - mw;
+    if (left < 8) left = 8;
+    if (left + mw > window.innerWidth - 8) left = window.innerWidth - mw - 8;
+    menu.style.left = Math.round(left) + 'px';
+    return;
+  }
+  menu.classList.remove('show');
+}
+function shareWhatsApp(lang) {
+  const msg = SHARE_MESSAGES[lang] || SHARE_MESSAGES.en;
+  const url = window.location.href;
+  const text = `${msg}\n${url}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  document.getElementById('shareMenu').classList.remove('show');
+}
+document.addEventListener('click', (e)=>{
+  const menu = document.getElementById('shareMenu');
+  if (menu && menu.classList.contains('show') && !e.target.closest('.share-wrap')) {
+    menu.classList.remove('show');
+  }
+});
+
 // ─── UI ───────────────────────────────────────────────────────────────────────
 function showRound(round) {
   if (['qf','sf','final'].includes(round)) buildLater();
@@ -1900,6 +1989,8 @@ buildLater();
 updateProgress();
 checkBanners();
 updateButtonStates();
+updateStageBadge();
+setInterval(updateStageBadge, 60*60*1000); // re-check hourly in case the page stays open across a stage change
 if (getIds('qf').every(id=>picks[id])) showRound('sf');  // Quarterfinals done → jump to Semifinals
 </script>
   <script>
