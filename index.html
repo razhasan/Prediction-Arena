@@ -52,17 +52,19 @@
   .share-wrap{ position:relative; }
   .share-btn{ display:flex; align-items:center; gap:6px; background:#25D366; color:#06170e; border:none; font-family:'Bebas Neue',sans-serif; letter-spacing:1px; font-size:12.5px; padding:8px 14px; border-radius:5px; cursor:pointer; box-shadow:0 2px 14px rgba(37,211,102,0.4); transition:filter .15s, transform .15s; white-space:nowrap; }
   .share-btn:hover{ filter:brightness(1.08); transform:translateY(-1px); }
-  .share-overlay{ position:fixed; inset:0; z-index:10002; background:rgba(4,6,11,0.88); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; padding:16px; }
-  .share-overlay.show{ display:flex; }
-  .share-modal{ width:100%; max-width:360px; background:linear-gradient(160deg,#0b0f1c,#0e1428); border:1px solid var(--border-lit); border-radius:16px; padding:22px 20px 20px; box-shadow:0 30px 80px rgba(0,0,0,0.6); position:relative; }
-  .share-modal-close{ position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:50%; background:var(--panel3); border:1px solid var(--border-lit); color:var(--muted); font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-  .share-modal-close:hover{ color:var(--text); border-color:var(--gold); }
-  .share-modal-title{ font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1.5px; color:var(--gold-light); text-align:center; margin-bottom:4px; }
-  .share-modal-sub{ font-size:11.5px; color:var(--muted); text-align:center; letter-spacing:.5px; text-transform:uppercase; margin-bottom:18px; }
-  .share-lang-grid{ display:flex; flex-direction:column; gap:9px; }
-  .share-lang-btn{ display:flex; align-items:center; gap:12px; background:var(--panel3); border:1px solid var(--border-lit); color:var(--text); font-family:'Inter',sans-serif; font-size:14.5px; font-weight:600; padding:13px 16px; border-radius:10px; cursor:pointer; width:100%; text-align:left; transition:all .15s; }
-  .share-lang-btn .flagchar{ font-size:20px; }
+  .share-section{ background:linear-gradient(160deg,#0b0f1c 0%,#0e1428 60%,#0b0f1c 100%); border-top:1px solid var(--border); padding:60px 32px 70px; scroll-margin-top:24px; }
+  .share-section.pulse{ animation:sharePulse 1.4s ease; }
+  @keyframes sharePulse{ 0%,100%{ box-shadow:inset 0 0 0 0 rgba(37,211,102,0); } 25%{ box-shadow:inset 0 0 60px 0 rgba(37,211,102,0.12); } }
+  .share-section-inner{ max-width:420px; margin:0 auto; text-align:center; }
+  .share-section-icon{ font-size:44px; margin-bottom:10px; }
+  .share-section-title{ font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; color:var(--gold-light); margin-bottom:6px; }
+  .share-section-sub{ font-size:12.5px; color:var(--muted); letter-spacing:.5px; margin-bottom:26px; }
+  .share-lang-grid{ display:flex; flex-direction:column; gap:11px; }
+  .share-lang-btn{ display:flex; align-items:center; gap:12px; background:var(--panel3); border:1px solid var(--border-lit); color:var(--text); font-family:'Inter',sans-serif; font-size:15px; font-weight:600; padding:15px 18px; border-radius:11px; cursor:pointer; width:100%; text-align:left; transition:all .15s; }
+  .share-lang-btn .flagchar{ font-size:21px; }
   .share-lang-btn:hover{ background:#25D366; color:#06170e; border-color:#25D366; transform:translateY(-1px); }
+  .share-back-top{ margin-top:24px; background:transparent; border:1px solid var(--border); color:var(--muted); font-family:'Inter',sans-serif; font-size:11.5px; font-weight:600; letter-spacing:1px; text-transform:uppercase; padding:9px 18px; border-radius:6px; cursor:pointer; transition:all .2s; }
+  .share-back-top:hover{ border-color:var(--gold); color:var(--gold); }
 
   /* ───── CONTENDERS TICKER ───── */
   .fav-strip{ background:var(--panel); border-bottom:1px solid var(--border); overflow:hidden; position:relative; z-index:1; }
@@ -395,20 +397,6 @@
   </div>
 </div>
 
-<div class="share-overlay" id="shareOverlay" onclick="if(event.target===this)closeShareModal()">
-  <div class="share-modal">
-    <button class="share-modal-close" type="button" onclick="closeShareModal()">✕</button>
-    <div class="share-modal-title">📲 Share on WhatsApp</div>
-    <div class="share-modal-sub">Choose a language</div>
-    <div class="share-lang-grid">
-      <button class="share-lang-btn" type="button" onclick="shareWhatsApp('en')"><span class="flagchar">🇬🇧</span> English</button>
-      <button class="share-lang-btn" type="button" onclick="shareWhatsApp('fr')"><span class="flagchar">🇫🇷</span> Français</button>
-      <button class="share-lang-btn" type="button" onclick="shareWhatsApp('ur')"><span class="flagchar">🇵🇰</span> اردو</button>
-      <button class="share-lang-btn" type="button" onclick="shareWhatsApp('nl')"><span class="flagchar">🇳🇱</span> Nederlands</button>
-    </div>
-  </div>
-</div>
-
 <header>
   <div class="floodlight fl1"></div>
   <div class="floodlight fl2"></div>
@@ -422,7 +410,7 @@
       <div class="header-badge live" id="stageBadge"><span class="live-dot"></span>SEMIFINALS · JUL 14–15</div>
       <div class="header-badge">4 TEAMS REMAIN</div>
       <div class="share-wrap">
-        <button class="share-btn" type="button" onclick="openShareModal()">📲 Share</button>
+        <button class="share-btn" type="button" onclick="scrollToShare()">📲 Share</button>
       </div>
     </div>
   </div>
@@ -540,6 +528,22 @@
     </div>
   </div>
 </main>
+
+<!-- ───── SHARE SECTION (bottom of page — reached by scrolling down) ───── -->
+<section class="share-section" id="shareSection">
+  <div class="share-section-inner">
+    <div class="share-section-icon">📲</div>
+    <div class="share-section-title">Share This Predictor</div>
+    <div class="share-section-sub">Choose a language to send a WhatsApp message to your friends</div>
+    <div class="share-lang-grid">
+      <button class="share-lang-btn" type="button" onclick="shareWhatsApp('en')"><span class="flagchar">🇬🇧</span> English</button>
+      <button class="share-lang-btn" type="button" onclick="shareWhatsApp('fr')"><span class="flagchar">🇫🇷</span> Français</button>
+      <button class="share-lang-btn" type="button" onclick="shareWhatsApp('ur')"><span class="flagchar">🇵🇰</span> اردو</button>
+      <button class="share-lang-btn" type="button" onclick="shareWhatsApp('de')"><span class="flagchar">🇩🇪</span> Deutsch</button>
+    </div>
+    <button class="share-back-top" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Back to top</button>
+  </div>
+</section>
 
 <!-- ───── PLAY MINI-GAME OVERLAY ───── -->
 <div class="play-overlay" id="playOverlay">
@@ -1825,20 +1829,21 @@ const SHARE_MESSAGES = {
   en: "⚽🏆 Come predict the FIFA World Cup 2026 knockouts with me! Pick winners, play out matches & crown your champion. Jump in and enjoy 🔥👇",
   fr: "⚽🏆 Viens prédire les phases finales de la Coupe du Monde 2026 avec moi ! Choisis les vainqueurs, joue les matchs et sacre ton champion. Amuse-toi bien 🔥👇",
   ur: "⚽🏆 میرے ساتھ فیفا ورلڈ کپ 2026 کے ناک آؤٹ میچز کی پیشگوئی کریں! فاتح چنیں، میچز کھیلیں اور اپنا چیمپیئن بنائیں۔ آئیں اور لطف اٹھائیں 🔥👇",
-  nl: "⚽🏆 Voorspel met mij de knock-outfase van het WK 2026! Kies winnaars, speel wedstrijden na en kroon je kampioen. Doe mee en veel plezier 🔥👇",
+  de: "⚽🏆 Sag mit mir die K.o.-Runde der Fußball-WM 2026 voraus! Wähle Sieger, spiele Partien nach und kröne deinen Champion. Mach mit und viel Spaß 🔥👇",
 };
-function openShareModal() {
-  document.getElementById('shareOverlay').classList.add('show');
-}
-function closeShareModal() {
-  document.getElementById('shareOverlay').classList.remove('show');
+function scrollToShare() {
+  const section = document.getElementById('shareSection');
+  if (!section) return;
+  section.scrollIntoView({ behavior:'smooth', block:'start' });
+  section.classList.remove('pulse');
+  void section.offsetWidth; // restart animation if clicked again
+  section.classList.add('pulse');
 }
 function shareWhatsApp(lang) {
   const msg = SHARE_MESSAGES[lang] || SHARE_MESSAGES.en;
   const url = window.location.href;
   const text = `${msg}\n${url}`;
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-  closeShareModal();
 }
 
 // ─── UI ───────────────────────────────────────────────────────────────────────
