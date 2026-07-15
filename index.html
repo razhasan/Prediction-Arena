@@ -538,7 +538,7 @@
 
   <div class="round-section" id="section-third">
     <div class="round-header"><h2>3rd Place Playoff</h2><div class="line"></div><div class="count">Saturday, July 18</div></div>
-    <div class="section-note">🥉 Consolation match between the two Semifinal losers. <strong>France</strong> is confirmed after losing Semifinal 1 to Spain. The second team will be whichever of <strong>England</strong> or <strong>Argentina</strong> loses Semifinal 2 (Jul 15, Atlanta) — once that result is in, hit <strong>Check Live Results</strong> to lock this match in.</div>
+    <div class="section-note">🥉 Consolation match between the two Semifinal losers. Both teams are now confirmed: <strong>France</strong> (lost Semifinal 1 to Spain) and <strong>England</strong> (lost Semifinal 2 to Argentina, 2–1). Kick-off is Saturday, July 18 at Hard Rock Stadium (Miami Stadium), Miami Gardens, FL — hit <strong>Check Live Results</strong> once it's been played to lock this match in.</div>
     <div class="prob-legend">
       <strong>Win probability:</strong>
       <span><div class="dot high"></div>60%+ Likely</span>
@@ -828,6 +828,9 @@ const LIVE_RESULTS_DB = {
   // All four Quarterfinals are complete — the Semifinal bracket was fully set:
   // Semifinal 1: France vs. Spain (Dallas, Jul 14) · Semifinal 2: England vs. Argentina (Atlanta, Jul 15)
   'sf-01': { winner:'ESP', loser:'FRA', wG:2, lG:0, pen:'' }, // Spain 2-0 France, Jul 14 — Spain into the Final
+  'sf-02': { winner:'ARG', loser:'ENG', wG:2, lG:1, pen:'' }, // Argentina 2-1 England, Jul 15 — Argentina into the Final
+  // Both Semifinals are now complete: Argentina joins Spain in the Final (Jul 19),
+  // and France (lost SF1) meets England (lost SF2) in the 3rd Place Playoff, Jul 18.
 };
 
 // ─── STAGE SCHEDULE (kickoff date/time kept here; badge is derived from it) ──
@@ -835,9 +838,10 @@ const LIVE_RESULTS_DB = {
 // checks the current date/time against these and shows whichever stage is
 // "live or next" — no manual updates needed as the tournament progresses.
 const STAGE_SCHEDULE = {
-  sf1:   { label:'Semifinal 1 (France vs. Spain)',       kickoff:'2026-07-14T15:00:00-04:00', venue:'Dallas' },
-  sf2:   { label:'Semifinal 2 (England vs. Argentina)',  kickoff:'2026-07-15T15:00:00-04:00', venue:'Atlanta' },
-  final: { label:'Final',                                kickoff:'2026-07-19T15:00:00-04:00', venue:'MetLife Stadium, East Rutherford, NJ' },
+  sf1:   { label:'Semifinal 1 (France vs. Spain)',        kickoff:'2026-07-14T15:00:00-04:00', venue:'Dallas' },
+  sf2:   { label:'Semifinal 2 (England vs. Argentina)',   kickoff:'2026-07-15T15:00:00-04:00', venue:'Atlanta' },
+  third: { label:'3rd Place Playoff (France vs. England)',kickoff:'2026-07-18T17:00:00-04:00', venue:'Hard Rock Stadium, Miami Gardens, FL' },
+  final: { label:'Final',                                 kickoff:'2026-07-19T15:00:00-04:00', venue:'MetLife Stadium, East Rutherford, NJ' },
 };
 
 function updateStageBadge() {
@@ -846,10 +850,14 @@ function updateStageBadge() {
   const now = new Date();
   const sf1 = new Date(STAGE_SCHEDULE.sf1.kickoff);
   const sf2 = new Date(STAGE_SCHEDULE.sf2.kickoff);
+  const third = new Date(STAGE_SCHEDULE.third.kickoff);
 
-  if (now > sf2) {
-    // Second Semifinal has kicked off (i.e. we're past Jul 15) — show the Final
+  if (now > third) {
+    // 3rd Place Playoff has kicked off (i.e. we're past Jul 18) — show the Final
     el.innerHTML = `<span class="live-dot"></span>FINAL · SUN JUL 19 · ${STAGE_SCHEDULE.final.venue}`;
+  } else if (now > sf2) {
+    // Both Semifinals are done — France vs. England play for 3rd, Argentina vs. Spain await the Final
+    el.innerHTML = `<span class="live-dot"></span>3RD PLACE PLAYOFF · SAT JUL 18 · ${STAGE_SCHEDULE.third.venue}`;
   } else if (now > sf1) {
     // Past the first Semifinal's kickoff but not yet the second — show SF2
     el.innerHTML = `<span class="live-dot"></span>SECOND SEMIFINAL BEGINS JUL 15`;
@@ -943,7 +951,7 @@ function buildLater() {
   QF_FIXED.forEach(m=>gq.appendChild(makeCard(m.id, m.label, m.date, m.t1, m.t2, 'qf')));
 
   const SF_DATES = ['Jul 14 · Dallas', 'Jul 15 · Atlanta'];
-  const THIRD_DATES = ['Jul 18 · Saturday'];
+  const THIRD_DATES = ['Jul 18 · Miami Gardens'];
   const FINAL_DATES = ['Jul 19 · East Rutherford'];
   ['sf','third','final'].forEach(round=>{
     const g=document.getElementById('grid-'+round); g.innerHTML='';
