@@ -116,6 +116,15 @@
   .round-tab .badge{ display:inline-block; background:var(--border); border-radius:10px; font-size:10px; padding:1px 6px; margin-left:6px; color:var(--muted); font-family:'Rajdhani',sans-serif; font-weight:700; }
   .round-tab.active .badge{ background:rgba(212,167,44,0.22); color:var(--gold); }
 
+  /* ───── QUALIFICATION CHART ───── */
+  .qual-chart-wrap{ display:flex; flex-direction:column; align-items:center; gap:20px; padding:10px 0 20px; }
+  #qualChart{ width:100%; max-width:440px; }
+  #qualChart svg path{ transition:filter .15s; cursor:default; }
+  #qualChart svg path:hover{ filter:brightness(1.35); }
+  .qual-legend{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; max-width:520px; }
+  .qual-legend-item{ display:flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); }
+  .qual-legend-item i{ width:12px; height:12px; border-radius:3px; display:inline-block; flex-shrink:0; }
+
   /* ───── MAIN ───── */
   main{ max-width:1560px; margin:0 auto; padding:30px 32px 60px; position:relative; z-index:1; }
   .round-section{ display:none; }
@@ -455,8 +464,10 @@
     <div class="round-tab" data-round="r16" onclick="showRound('r16')">Round of 16 <span class="badge">8/8</span></div>
     <div class="round-tab active" data-round="qf" onclick="showRound('qf')">Quarterfinals <span class="badge num" id="tab-badge-qf">0/4</span></div>
     <div class="round-tab" data-round="sf" onclick="showRound('sf')">Semifinals <span class="badge num" id="tab-badge-sf">0/2</span></div>
+    <div class="round-tab" data-round="third" onclick="showRound('third')">3rd Place <span class="badge num" id="tab-badge-third">0/1</span></div>
     <div class="round-tab" data-round="final" onclick="showRound('final')">Final <span class="badge num" id="tab-badge-final">0/1</span></div>
     <div class="round-tab" data-round="winner" onclick="showRound('winner')">🏆 Champion</div>
+    <div class="round-tab" data-round="overview" onclick="showRound('overview')">📊 Overview</div>
   </div>
 </div>
 
@@ -494,8 +505,21 @@
       <span><div class="dot mid"></div>40–59% Even</span>
       <span><div class="dot low"></div>&lt;40% Underdog</span>
     </div>
-    <div class="advance-banner" id="banner-sf"><span>✅ All Semifinal picks complete!</span><button onclick="showRound('final')">Go to the Final →</button></div>
+    <div class="advance-banner" id="banner-sf"><span>✅ All Semifinal picks complete!</span><button onclick="showRound('third')">Go to 3rd Place Match →</button></div>
     <div class="match-grid" id="grid-sf"></div>
+  </div>
+
+  <div class="round-section" id="section-third">
+    <div class="round-header"><h2>3rd Place Playoff</h2><div class="line"></div><div class="count">Saturday, July 18</div></div>
+    <div class="section-note">🥉 Consolation match between the two Semifinal losers. <strong>France</strong> is confirmed after losing Semifinal 1 to Spain. The second team will be whichever of <strong>England</strong> or <strong>Argentina</strong> loses Semifinal 2 (Jul 15, Atlanta) — once that result is in, hit <strong>Check Live Results</strong> to lock this match in.</div>
+    <div class="prob-legend">
+      <strong>Win probability:</strong>
+      <span><div class="dot high"></div>60%+ Likely</span>
+      <span><div class="dot mid"></div>40–59% Even</span>
+      <span><div class="dot low"></div>&lt;40% Underdog</span>
+    </div>
+    <div class="advance-banner" id="banner-third"><span>✅ 3rd Place decided!</span><button onclick="showRound('final')">Go to the Final →</button></div>
+    <div class="match-grid" id="grid-third" style="max-width:390px;"></div>
   </div>
 
   <div class="round-section" id="section-final">
@@ -525,6 +549,15 @@
         <div id="roadList"></div>
       </div>
       <button class="btn-reset" onclick="resetAll()">↩ Reset Predictions</button>
+    </div>
+  </div>
+
+  <div class="round-section" id="section-overview">
+    <div class="round-header"><h2>Qualification Overview</h2><div class="line"></div><div class="count">32 → 16 → 8 → 4 → 2 → 1</div></div>
+    <div class="section-note">🎯 Each of the 32 flags around the edge belongs to one Round-of-32 team. Reading outward-in: the outer ring is Round of 32, then Round of 16, Quarterfinals, Semifinals, and the Final at the centre. A team's spoke stays lit as long as they keep winning — it goes dark the round they're eliminated. Hover any wedge for details.</div>
+    <div class="qual-chart-wrap">
+      <div id="qualChart"></div>
+      <div class="qual-legend" id="qualLegend"></div>
     </div>
   </div>
 </main>
@@ -810,12 +843,12 @@ let upsetCount = 0;
 
 function getIds(round) {
   if (round==='r16') return []; // Round of 16 is now fully decided/static — nothing to pick
-  const c={qf:4, sf:2, final:1};
+  const c={qf:4, sf:2, third:1, final:1};
   return Array.from({length:c[round]},(_,i)=>`${round}-${String(i+1).padStart(2,'0')}`);
 }
-function prevRound(r){ return {qf:'r16', sf:'qf', final:'sf'}[r]; }
-function nextRound(r){ return {r16:'qf', qf:'sf', sf:'final'}[r]; }
-const ROUND_NAMES = {r16:'Round of 16', qf:'Quarterfinal', sf:'Semifinal', final:'Final'};
+function prevRound(r){ return {qf:'r16', sf:'qf', final:'sf'}[r]; } // 'third' resolved specially in getMatchTeams
+function nextRound(r){ return {r16:'qf', qf:'sf', sf:'final'}[r]; } // 'third' intentionally has no next round — it's a standalone consolation match
+const ROUND_NAMES = {r16:'Round of 16', qf:'Quarterfinal', sf:'Semifinal', third:'3rd Place Playoff', final:'Final'};
 
 // Resolve the two teams for any interactive match, from real fixed data or prior picks.
 function getMatchTeams(matchId, round) {
@@ -823,6 +856,18 @@ function getMatchTeams(matchId, round) {
   if (round === 'qf') {
     const fixed = QF_FIXED.find(x=>x.id===matchId);
     return fixed ? {t1:fixed.t1, t2:fixed.t2} : {t1:null, t2:null};
+  }
+  if (round === 'third') {
+    // The 3rd Place Playoff is contested by the two Semifinal LOSERS, not the winners —
+    // so it needs its own lookup instead of the generic "previous round's winners" logic.
+    const losers = getIds('sf').map(sfId=>{
+      const winner = picks[sfId];
+      if (!winner) return null;
+      const {t1,t2} = getMatchTeams(sfId,'sf');
+      if (!t1||!t2) return null;
+      return winner===t1 ? t2 : t1;
+    });
+    return {t1:losers[0]||null, t2:losers[1]||null};
   }
   const pids = getIds(prevRound(round));
   const idx = getIds(round).indexOf(matchId);
@@ -868,13 +913,14 @@ function buildLater() {
   QF_FIXED.forEach(m=>gq.appendChild(makeCard(m.id, m.label, m.date, m.t1, m.t2, 'qf')));
 
   const SF_DATES = ['Jul 14 · Dallas', 'Jul 15 · Atlanta'];
+  const THIRD_DATES = ['Jul 18 · Saturday'];
   const FINAL_DATES = ['Jul 19 · East Rutherford'];
-  ['sf','final'].forEach(round=>{
+  ['sf','third','final'].forEach(round=>{
     const g=document.getElementById('grid-'+round); g.innerHTML='';
-    const dates = round==='sf' ? SF_DATES : FINAL_DATES;
+    const dates = round==='sf' ? SF_DATES : round==='third' ? THIRD_DATES : FINAL_DATES;
     getIds(round).forEach((mid,i)=>{
       const {t1,t2} = getMatchTeams(mid, round);
-      g.appendChild(makeCard(mid, `Match ${i+1}`, dates[i]||'', t1, t2, round));
+      g.appendChild(makeCard(mid, round==='third'?'3rd Place':`Match ${i+1}`, dates[i]||'', t1, t2, round));
     });
   });
 }
@@ -1687,7 +1733,7 @@ function checkLiveResults() {
   if (btn) { btn.disabled = true; btn.querySelector('.live-dot')?.classList.add('spin'); }
 
   let updated = 0;
-  ['r16','qf','sf','final'].forEach(round=>{
+  ['r16','qf','sf','third','final'].forEach(round=>{
     getIds(round).forEach(matchId=>{
       if (picks[matchId]) return;                 // already decided — leave it alone
       const real = LIVE_RESULTS_DB[matchId];
@@ -1849,7 +1895,8 @@ function shareWhatsApp(lang) {
 
 // ─── UI ───────────────────────────────────────────────────────────────────────
 function showRound(round) {
-  if (['qf','sf','final'].includes(round)) buildLater();
+  if (['qf','sf','third','final'].includes(round)) buildLater();
+  if (round==='overview') buildQualificationChart();
   document.querySelectorAll('.round-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.round-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('section-'+round).classList.add('active');
@@ -1868,26 +1915,27 @@ function showRound(round) {
 }
 
 function updateProgress() {
-  const total=7; // 4 QF + 2 SF + 1 Final
-  const done=Object.keys(picks).length;
+  const total=7; // 4 QF + 2 SF + 1 Final — the 3rd Place Playoff is a side match and doesn't count toward the Champion journey
+  const done=Object.keys(picks).filter(k=>k!=='third-01').length;
   const pct=Math.round(done/total*100);
   document.getElementById('progressFill').style.width=pct+'%';
   document.getElementById('progressPct').textContent=pct+'%';
-  ['qf','sf','final'].forEach((r)=>{
-    const totals={qf:4,sf:2,final:1};
+  ['qf','sf','third','final'].forEach((r)=>{
+    const totals={qf:4,sf:2,third:1,final:1};
     document.getElementById('tab-badge-'+r).textContent=`${getIds(r).filter(id=>picks[id]).length}/${totals[r]}`;
   });
+  buildQualificationChart();
 }
 
 function checkBanners() {
-  [['qf',4],['sf',2],['final',1]].forEach(([r,t])=>{
+  [['qf',4],['sf',2],['third',1],['final',1]].forEach(([r,t])=>{
     const done=getIds(r).filter(id=>picks[id]).length;
     document.getElementById('banner-'+r).classList.toggle('show',done===t);
   });
 }
 
 function updateButtonStates() {
-  const total=Object.keys(picks).length;
+  const total=Object.keys(picks).filter(k=>k!=='third-01').length;
   document.getElementById('btnNext').disabled = total>=7;
 }
 
@@ -1895,7 +1943,7 @@ function resetAll() {
   Object.keys(picks).forEach(k=>delete picks[k]);
   Object.keys(pickMeta).forEach(k=>delete pickMeta[k]);
   upsetCount = 0;
-  buildR16(); buildLater(); buildFavStrip(); updateProgress(); checkBanners();
+  buildR16(); buildLater(); buildFavStrip(); updateProgress(); checkBanners(); buildQualificationChart();
   document.getElementById('winner-section').style.display='none';
   showRound('qf');
   updateButtonStates();
@@ -1928,6 +1976,105 @@ function buildFavStrip() {
     const t=T[code], score=STRENGTH[code]||0;
     return `<div class="fav-chip">${flagHTML(code)}<span class="fname">${t.name}</span><div class="fbar"><i style="width:${score}%"></i></div><span class="fscore num">${score}</span></div>`;
   }).join('');
+}
+
+// ─── QUALIFICATION SUNBURST CHART ────────────────────────────────────────────
+// Ring 0 (outermost) = Round of 32, working inward through R16 → QF → SF → Final.
+// Every one of the 32 Round-of-32 teams gets its own fixed angular "spoke" that
+// runs through all 5 rings; a spoke is drawn in that ring's colour as long as the
+// team was still alive at that stage, and fades to a dim slot the round they're out.
+const RING_COLORS = ['#3A4468','#2E8B6F','#33C97A','#F2823A','#E63946'];
+const RING_LABELS = ['Round of 32','Round of 16','Quarterfinals','Semifinals','Final'];
+
+function getRoundParticipants() {
+  const round0 = []; R32_RESULTS.forEach(m=>round0.push(m.t1, m.t2));
+  const round1 = []; R16_RESULTS.forEach(m=>round1.push(m.t1, m.t2));
+  const round2 = []; QF_FIXED.forEach(m=>round2.push(m.t1, m.t2));
+  const round3 = []; getIds('qf').forEach(id=>{ if (picks[id]) round3.push(picks[id]); });
+  const round4 = []; getIds('sf').forEach(id=>{ if (picks[id]) round4.push(picks[id]); });
+  const champion = picks['final-01'] || null;
+  return { round0, round1, round2, round3, round4, champion };
+}
+
+// Furthest stage a team reached: -1 unranked, 0 out in R32 ... 4 reached Final, 5 Champion.
+function teamLevel(code, rp) {
+  if (rp.champion === code) return 5;
+  if (rp.round4.includes(code)) return 4;
+  if (rp.round3.includes(code)) return 3;
+  if (rp.round2.includes(code)) return 2;
+  if (rp.round1.includes(code)) return 1;
+  if (rp.round0.includes(code)) return 0;
+  return -1;
+}
+
+function polarPt(cx,cy,r,angleDeg){
+  const rad = (angleDeg-90) * Math.PI/180;
+  return { x: cx + r*Math.cos(rad), y: cy + r*Math.sin(rad) };
+}
+function ringSlicePath(cx,cy,r0,r1,a0,a1){
+  const p0=polarPt(cx,cy,r1,a0), p1=polarPt(cx,cy,r1,a1);
+  const p2=polarPt(cx,cy,r0,a1), p3=polarPt(cx,cy,r0,a0);
+  const large=(a1-a0)>180 ? 1 : 0;
+  return `M ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${r1} ${r1} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} L ${p2.x.toFixed(2)} ${p2.y.toFixed(2)} A ${r0} ${r0} 0 ${large} 0 ${p3.x.toFixed(2)} ${p3.y.toFixed(2)} Z`;
+}
+
+function buildQualificationChart() {
+  const host = document.getElementById('qualChart');
+  if (!host) return;
+  const rp = getRoundParticipants();
+  const teams = rp.round0; // fixed 32-slot order, from the Round of 32 draw
+  const n = teams.length;
+  const slotAngle = 360/n;
+  const cx=215, cy=215, ringWidth=24, startR=44, gap=1.2;
+
+  let svg = '';
+  for (let ring=0; ring<5; ring++){
+    const r0 = startR + ring*ringWidth, r1 = r0 + ringWidth - 2;
+    for (let i=0;i<n;i++){
+      const code = teams[i];
+      const lvl = teamLevel(code, rp);
+      const reached = lvl >= ring;
+      const a0 = i*slotAngle + gap, a1 = (i+1)*slotAngle - gap;
+      const fill = reached ? RING_COLORS[ring] : 'rgba(255,255,255,0.05)';
+      const name = T[code] ? T[code].name : code;
+      const status = reached ? `reached ${RING_LABELS[ring]}` : 'eliminated earlier';
+      svg += `<path d="${ringSlicePath(cx,cy,r0,r1,a0,a1)}" fill="${fill}" stroke="#080b14" stroke-width="1"><title>${name} — ${status}</title></path>`;
+    }
+  }
+  // Outer team flags (emoji — renders reliably everywhere), with the 3-letter
+  // code just beneath each one for extra clarity
+  const flagR = startR + 5*ringWidth + 14;
+  const codeR = flagR + 13;
+  for (let i=0;i<n;i++){
+    const code = teams[i];
+    const t = T[code];
+    if (!t) continue;
+    const lvl = teamLevel(code, rp);
+    const mid = i*slotAngle + slotAngle/2;
+    const dimAttr = lvl<1 ? ' opacity="0.4"' : '';
+    const fp = polarPt(cx,cy,flagR,mid);
+    svg += `<text x="${fp.x.toFixed(2)}" y="${(fp.y+2).toFixed(2)}" text-anchor="middle" dominant-baseline="middle" font-size="15"${dimAttr}>${t.emoji}<title>${t.name}</title></text>`;
+    const cp = polarPt(cx,cy,codeR,mid);
+    svg += `<text x="${cp.x.toFixed(2)}" y="${cp.y.toFixed(2)}" text-anchor="middle" dominant-baseline="middle" font-size="7.5" fill="${lvl>=1?'#7B84A6':'#3d4360'}" font-family="Rajdhani, sans-serif" font-weight="700">${code}</text>`;
+  }
+  // Centre — champion (flag emoji + name)
+  const champCode = rp.champion;
+  const champName = champCode ? (T[champCode]?T[champCode].name:champCode) : 'TBD';
+  svg += `<circle cx="${cx}" cy="${cy}" r="${startR-6}" fill="#12172A" stroke="#28304C" stroke-width="1.5"/>`;
+  svg += `<text x="${cx}" y="${cy-14}" text-anchor="middle" font-size="9" fill="#7B84A6" font-family="Inter, sans-serif" letter-spacing="1.5">CHAMPION</text>`;
+  if (champCode && T[champCode]) {
+    svg += `<text x="${cx}" y="${cy+2}" text-anchor="middle" font-size="20">${T[champCode].emoji}</text>`;
+  }
+  svg += `<text x="${cx}" y="${cy+17}" text-anchor="middle" font-size="13" fill="${champCode?'#F4D35E':'#565E80'}" font-family="'Bebas Neue', sans-serif" letter-spacing="1">${champName}</text>`;
+
+  host.innerHTML = `<svg viewBox="0 0 430 430" width="100%" height="100%" style="max-width:460px;display:block;margin:0 auto;">${svg}</svg>`;
+
+  const legend = document.getElementById('qualLegend');
+  if (legend) {
+    legend.innerHTML = RING_LABELS.map((label,i)=>
+      `<div class="qual-legend-item"><i style="background:${RING_COLORS[i]}"></i>${label}</div>`
+    ).join('') + `<div class="qual-legend-item"><i style="background:rgba(255,255,255,0.08)"></i>Eliminated</div>`;
+  }
 }
 
 // ─── TOASTS ───────────────────────────────────────────────────────────────────
@@ -1983,12 +2130,13 @@ buildFavStrip();
 buildR32();
 buildR16();
 buildLater();
-checkLiveResults();          // lock in confirmed real-world results (Quarterfinals) on load
+checkLiveResults();          // lock in confirmed real-world results (Quarterfinals, Semifinals, etc.) on load
 buildFavStrip();
 buildLater();
 updateProgress();
 checkBanners();
 updateButtonStates();
+buildQualificationChart();
 updateStageBadge();
 setInterval(updateStageBadge, 60*60*1000); // re-check hourly in case the page stays open across a stage change
 if (getIds('qf').every(id=>picks[id])) showRound('sf');  // Quarterfinals done → jump to Semifinals
