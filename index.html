@@ -121,6 +121,33 @@
   #qualChart{ width:100%; max-width:440px; }
   #qualChart svg path{ transition:filter .15s; cursor:default; }
   #qualChart svg path:hover{ filter:brightness(1.35); }
+  #qualChart svg circle[data-flaghit]{ transition:fill .15s; }
+  #qualChart svg circle[data-flaghit]:hover{ fill:rgba(255,255,255,0.10); }
+
+  /* ───── TEAM ZOOM (Overview tab — click a flag to inspect its journey) ───── */
+  .team-zoom-overlay{ position:fixed; inset:0; z-index:10002; background:rgba(4,6,11,0.9); backdrop-filter:blur(7px); display:none; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; }
+  .team-zoom-overlay.show{ display:flex; animation:zoomFadeIn .18s ease; }
+  @keyframes zoomFadeIn{ from{ opacity:0; } to{ opacity:1; } }
+  .team-zoom-wrap{ width:100%; max-width:460px; background:linear-gradient(160deg,#0b0f1c,#0e1428); border:1px solid var(--border-lit); border-radius:18px; padding:26px 22px 22px; position:relative; box-shadow:0 30px 90px rgba(0,0,0,0.65); text-align:center; animation:zoomPopIn .22s cubic-bezier(.2,.8,.3,1.1); }
+  @keyframes zoomPopIn{ from{ transform:scale(.92) translateY(10px); opacity:0; } to{ transform:scale(1) translateY(0); opacity:1; } }
+  .team-zoom-flag{ cursor:pointer; display:inline-block; transition:transform .15s; margin-bottom:8px; }
+  .team-zoom-flag:hover{ transform:scale(1.06); }
+  .team-zoom-flag img{ width:110px; border-radius:6px; box-shadow:0 6px 26px rgba(0,0,0,.5); }
+  .team-zoom-hint{ font-size:10px; color:var(--muted-dim); letter-spacing:.5px; text-transform:uppercase; margin-bottom:10px; }
+  .team-zoom-name{ font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; color:var(--gold-light); }
+  .team-zoom-status{ font-size:12.5px; font-weight:600; color:var(--pitch-green); margin-top:4px; margin-bottom:6px; }
+  .team-zoom-status.elim{ color:var(--danger); }
+  .team-zoom-status.pending{ color:var(--amber); }
+  .team-zoom-chart{ margin:10px auto 4px; }
+  .team-zoom-road{ max-width:100%; margin-top:18px; text-align:left; }
+  .team-zoom-road .road-row{ position:relative; }
+  .zoom-w, .zoom-l{ font-family:'Rajdhani',sans-serif; font-weight:700; font-size:11px; border-radius:4px; padding:1px 6px; margin-left:auto; flex-shrink:0; }
+  .zoom-w{ background:var(--pitch-green-dim); color:var(--pitch-green); }
+  .zoom-l{ background:var(--danger-dim); color:var(--danger); }
+  .zoom-note{ font-size:10px; color:var(--muted-dim); margin-left:6px; flex-shrink:0; }
+  .road-row.zoom-pending{ color:var(--amber); border-style:dashed; }
+  .team-zoom-close{ position:absolute; top:12px; right:12px; width:28px; height:28px; border-radius:50%; background:var(--panel3); border:1px solid var(--border-lit); color:var(--muted); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .team-zoom-close:hover{ color:var(--danger); border-color:var(--danger); }
   .qual-legend{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; max-width:520px; }
   .qual-legend-item{ display:flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); }
   .qual-legend-item i{ width:12px; height:12px; border-radius:3px; display:inline-block; flex-shrink:0; }
@@ -554,7 +581,7 @@
 
   <div class="round-section" id="section-overview">
     <div class="round-header"><h2>Qualification Overview</h2><div class="line"></div><div class="count">32 → 16 → 8 → 4 → 2 → 1</div></div>
-    <div class="section-note">🎯 Each of the 32 flags around the edge belongs to one Round-of-32 team. Reading outward-in: the outer ring is Round of 32, then Round of 16, Quarterfinals, Semifinals, and the Final at the centre. A team's spoke stays lit as long as they keep winning — it goes dark the round they're eliminated. Hover any wedge for details.</div>
+    <div class="section-note">🎯 Each of the 32 flags around the edge belongs to one Round-of-32 team. Reading outward-in: the outer ring is Round of 32, then Round of 16, Quarterfinals, Semifinals, and the Final at the centre. A team's spoke stays lit as long as they keep winning — it goes dark the round they're eliminated. Hover any wedge for details, or <b>click any flag to zoom in on that team's full journey</b> — click it again (or tap outside) to zoom back out.</div>
     <div class="qual-chart-wrap">
       <div id="qualChart"></div>
       <div class="qual-legend" id="qualLegend"></div>
@@ -618,6 +645,9 @@
     <div class="help-foot">Use whichever suits your device — keyboard, mouse, and touch all play the same game.</div>
   </div>
 </div>
+
+<!-- ───── TEAM ZOOM OVERLAY (Overview tab — click any flag to inspect its journey) ───── -->
+<div class="team-zoom-overlay" id="teamZoomOverlay" onclick="if(event.target===this) closeTeamZoom();"></div>
 
 <script>
 // ─── TEAMS (code → name, ISO flag code for image, emoji fallback) ────────────
@@ -2053,7 +2083,8 @@ function buildQualificationChart() {
     const mid = i*slotAngle + slotAngle/2;
     const dimAttr = lvl<1 ? ' opacity="0.4"' : '';
     const fp = polarPt(cx,cy,flagR,mid);
-    svg += `<text x="${fp.x.toFixed(2)}" y="${(fp.y+2).toFixed(2)}" text-anchor="middle" dominant-baseline="middle" font-size="15"${dimAttr}>${t.emoji}<title>${t.name}</title></text>`;
+    svg += `<circle data-flaghit="1" cx="${fp.x.toFixed(2)}" cy="${fp.y.toFixed(2)}" r="11" fill="transparent" style="cursor:pointer;" onclick="handleFlagClick('${code}')"><title>Click to zoom into ${t.name}'s journey</title></circle>`;
+    svg += `<text x="${fp.x.toFixed(2)}" y="${(fp.y+2).toFixed(2)}" text-anchor="middle" dominant-baseline="middle" font-size="15" style="pointer-events:none;"${dimAttr}>${t.emoji}<title>${t.name}</title></text>`;
     const cp = polarPt(cx,cy,codeR,mid);
     svg += `<text x="${cp.x.toFixed(2)}" y="${cp.y.toFixed(2)}" text-anchor="middle" dominant-baseline="middle" font-size="7.5" fill="${lvl>=1?'#7B84A6':'#3d4360'}" font-family="Rajdhani, sans-serif" font-weight="700">${code}</text>`;
   }
@@ -2075,6 +2106,160 @@ function buildQualificationChart() {
       `<div class="qual-legend-item"><i style="background:${RING_COLORS[i]}"></i>${label}</div>`
     ).join('') + `<div class="qual-legend-item"><i style="background:rgba(255,255,255,0.08)"></i>Eliminated</div>`;
   }
+}
+
+// ─── TEAM ZOOM (Overview tab — click a flag to inspect one team's full journey) ─
+let zoomedTeam = null;
+const ROUND_SHORT = {'Round of 32':'R32','Round of 16':'R16',Quarterfinal:'QF',Semifinal:'SF',Final:'F'};
+
+function fixedRoundRow(entry, code, roundLabel) {
+  if (!entry) return null;
+  const isT1 = entry.t1===code;
+  if (!isT1 && entry.t2!==code) return null;
+  const opp = isT1 ? entry.t2 : entry.t1;
+  const own = isT1 ? entry.s1 : entry.s2;
+  const oppS = isT1 ? entry.s2 : entry.s1;
+  const winner = entry.pen ? entry.penWinner : (entry.s1>entry.s2 ? entry.t1 : entry.t2);
+  return { round:roundLabel, opp, own, oppS, pen:entry.pen||null, note:entry.note||null, won: winner===code };
+}
+
+// Walks a team from Round of 32 through to the Final (or as far as it has been
+// decided), returning the row-by-row journey plus an overall status.
+function getTeamJourney(code) {
+  const rows = [];
+  const r32 = R32_RESULTS.find(m=>m.t1===code||m.t2===code);
+  const row32 = fixedRoundRow(r32, code, 'Round of 32');
+  if (!row32) return { rows, status:'unknown' };
+  rows.push(row32);
+  if (!row32.won) return { rows, status:'eliminated', atRound:'Round of 32' };
+
+  const r16 = R16_RESULTS.find(m=>m.t1===code||m.t2===code);
+  const row16 = fixedRoundRow(r16, code, 'Round of 16');
+  if (!row16) { rows.push({ round:'Round of 16', pending:true }); return { rows, status:'pending' }; }
+  rows.push(row16);
+  if (!row16.won) return { rows, status:'eliminated', atRound:'Round of 16' };
+
+  for (const round of ['qf','sf','final']) {
+    const label = { qf:'Quarterfinal', sf:'Semifinal', final:'Final' }[round];
+    const ids = getIds(round);
+    const matchId = ids.find(id => { const {t1,t2} = getMatchTeams(id, round); return t1===code || t2===code; });
+    if (!matchId) { rows.push({ round:label, pending:true }); return { rows, status:'pending' }; }
+    const { t1, t2 } = getMatchTeams(matchId, round);
+    if (!t1 || !t2) { rows.push({ round:label, pending:true }); return { rows, status:'pending' }; }
+    const opp = t1===code ? t2 : t1;
+    const winner = picks[matchId];
+    if (!winner) { rows.push({ round:label, opp, pending:true }); return { rows, status:'pending' }; }
+    const meta = pickMeta[matchId] || {};
+    const won = winner===code;
+    const own = meta.score ? (won ? meta.score.wG : meta.score.lG) : null;
+    const oppS = meta.score ? (won ? meta.score.lG : meta.score.wG) : null;
+    rows.push({ round:label, opp, own, oppS, pen: meta.score?meta.score.pen:null, won, prob: meta.prob });
+    if (!won) return { rows, status: round==='final' ? 'runnerup' : 'eliminated', atRound:label };
+  }
+  return { rows, status:'champion' };
+}
+
+function buildTeamZoomChart(code) {
+  const host = document.getElementById('teamZoomChart');
+  if (!host) return;
+  const rp = getRoundParticipants();
+  const teams = rp.round0;
+  const n = teams.length;
+  const slotAngle = 360/n;
+  const cx=215, cy=215, ringWidth=24, startR=44, gap=1.2;
+  let svg = '';
+  for (let ring=0; ring<5; ring++) {
+    const r0 = startR + ring*ringWidth, r1 = r0 + ringWidth - 2;
+    for (let i=0; i<n; i++) {
+      const c = teams[i];
+      const isSel = c===code;
+      const lvl = teamLevel(c, rp);
+      const reached = lvl >= ring;
+      const a0 = i*slotAngle + gap, a1 = (i+1)*slotAngle - gap;
+      const fill = reached ? RING_COLORS[ring] : (isSel ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.05)');
+      const opacity = isSel ? 1 : 0.12;
+      const glow = isSel ? ` style="filter:drop-shadow(0 0 5px ${RING_COLORS[ring]})"` : '';
+      svg += `<path d="${ringSlicePath(cx,cy,r0,r1,a0,a1)}" fill="${fill}" opacity="${opacity}" stroke="#080b14" stroke-width="1"${glow}></path>`;
+    }
+  }
+  const flagR = startR + 5*ringWidth + 14;
+  const codeR = flagR + 15;
+  for (let i=0; i<n; i++) {
+    const c = teams[i], t = T[c];
+    if (!t) continue;
+    const isSel = c===code;
+    const mid = i*slotAngle + slotAngle/2;
+    const fp = polarPt(cx,cy,flagR,mid);
+    const fsize = isSel ? 22 : 13;
+    const opacity = isSel ? 1 : 0.16;
+    svg += `<text x="${fp.x.toFixed(2)}" y="${(fp.y+2).toFixed(2)}" text-anchor="middle" dominant-baseline="middle" font-size="${fsize}" opacity="${opacity}">${t.emoji}</text>`;
+    if (isSel) {
+      const cp = polarPt(cx,cy,codeR,mid);
+      svg += `<text x="${cp.x.toFixed(2)}" y="${cp.y.toFixed(2)}" text-anchor="middle" dominant-baseline="middle" font-size="9.5" fill="${RING_COLORS[4]}" font-family="Rajdhani, sans-serif" font-weight="700">${c}</text>`;
+    }
+  }
+  svg += `<circle cx="${cx}" cy="${cy}" r="${startR-6}" fill="#12172A" stroke="#28304C" stroke-width="1.5"/>`;
+  svg += `<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="26">${T[code].emoji}</text>`;
+  svg += `<text x="${cx}" y="${cy+18}" text-anchor="middle" font-size="10" fill="#7B84A6" font-family="Inter, sans-serif" letter-spacing="1">${code}</text>`;
+  host.innerHTML = `<svg viewBox="0 0 430 430" width="100%" height="100%" style="max-width:320px;display:block;margin:0 auto;">${svg}</svg>`;
+}
+
+function teamZoomJourneyHTML(rows) {
+  return rows.map(r => {
+    const short = ROUND_SHORT[r.round] || r.round;
+    if (r.pending) {
+      const oppTxt = r.opp ? `Awaiting result vs ${T[r.opp].name}` : 'Opponent not yet decided';
+      return `<div class="road-row zoom-pending"><span class="rlabel num">${short}</span>${r.opp?flagHTML(r.opp):''}<span class="rtext">${oppTxt}</span></div>`;
+    }
+    const scoreTxt = (r.own!=null && r.oppS!=null) ? `${r.own}–${r.oppS}${r.pen?` (${r.pen})`:''}` : '';
+    const badge = r.won ? '<span class="zoom-w">W</span>' : '<span class="zoom-l">L</span>';
+    const noteTxt = r.note ? `<span class="zoom-note">${r.note}</span>` : '';
+    return `<div class="road-row"><span class="rlabel num">${short}</span>${flagHTML(r.opp)}<span class="rtext">${r.won?'beat':'lost to'} ${T[r.opp].name}${scoreTxt?` <span class="num" style="color:var(--gold-light);">${scoreTxt}</span>`:''}</span>${noteTxt}${badge}</div>`;
+  }).join('');
+}
+
+function openTeamZoom(code) {
+  const t = T[code];
+  if (!t) return;
+  zoomedTeam = code;
+  const { rows, status, atRound } = getTeamJourney(code);
+
+  let statusClass = '', statusTxt = '';
+  if (status==='champion') { statusTxt = '🏆 FIFA World Cup 2026 Champions'; }
+  else if (status==='runnerup') { statusClass='elim'; statusTxt = '🥈 Runners-up — fell in the Final'; }
+  else if (status==='eliminated') { statusClass='elim'; statusTxt = `Eliminated in the ${atRound}`; }
+  else if (status==='pending') { statusClass='pending'; statusTxt = 'Still alive — next result not yet decided'; }
+  else { statusClass='pending'; statusTxt = 'No data yet for this team'; }
+
+  const overlay = document.getElementById('teamZoomOverlay');
+  overlay.innerHTML = `
+    <div class="team-zoom-wrap" onclick="event.stopPropagation()">
+      <button class="team-zoom-close" onclick="closeTeamZoom()" title="Close">✕</button>
+      <div class="team-zoom-flag" onclick="closeTeamZoom()" title="Click to zoom back out">${flagHTMLBig(code)}</div>
+      <div class="team-zoom-hint">Click flag to zoom out</div>
+      <div class="team-zoom-name">${t.name}</div>
+      <div class="team-zoom-status ${statusClass}">${statusTxt}</div>
+      <div class="team-zoom-chart" id="teamZoomChart"></div>
+      <div class="road team-zoom-road"><h3>📋 Full Road</h3><div>${teamZoomJourneyHTML(rows)}</div></div>
+    </div>`;
+  overlay.classList.add('show');
+  buildTeamZoomChart(code);
+  document.addEventListener('keydown', teamZoomEscHandler);
+}
+
+function closeTeamZoom() {
+  const overlay = document.getElementById('teamZoomOverlay');
+  overlay.classList.remove('show');
+  zoomedTeam = null;
+  document.removeEventListener('keydown', teamZoomEscHandler);
+}
+
+function teamZoomEscHandler(e) { if (e.key==='Escape') closeTeamZoom(); }
+
+// Called by clicking a flag in the main chart — toggles zoom in/out for that team.
+function handleFlagClick(code) {
+  if (zoomedTeam === code) closeTeamZoom();
+  else openTeamZoom(code);
 }
 
 // ─── TOASTS ───────────────────────────────────────────────────────────────────
